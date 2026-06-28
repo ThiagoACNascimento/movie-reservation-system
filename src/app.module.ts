@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { StatusModule } from './modules/status/status.module';
+import { DatabaseModule } from './infra/database/database.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { StatusModule } from './modules/status/status.module';
       expandVariables: true,
     }),
     StatusModule,
+    DatabaseModule,
   ],
 })
 export class AppModule {}
