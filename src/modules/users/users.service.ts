@@ -1,6 +1,10 @@
 import { PrismaService } from '@/infra/database/prisma.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { Prisma, User } from '@/generated/prisma/client';
 
 @Injectable()
@@ -21,6 +25,18 @@ export class UsersService {
     return this.prismaService.user.create({
       data,
     });
+  }
+
+  async findOne(id: string): Promise<User> {
+    const foundUser = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!foundUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    return foundUser;
   }
 
   findAll(): Promise<User[]> {
