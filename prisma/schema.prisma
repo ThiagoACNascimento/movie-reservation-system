@@ -14,16 +14,16 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
-  DEFAULT
+  admin
+  default
 }
 
 model User {
   id String @id @default(uuid())
   name String @db.VarChar(256)
   email String @db.VarChar(256) @unique
-  password_hash String @db.VarChar(72)
-  role Role @default(DEFAULT)
+  password String @db.VarChar(72) @map("password_hash")
+  role Role @default(default)
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
 

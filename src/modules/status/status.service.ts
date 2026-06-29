@@ -1,20 +1,20 @@
-import { DatabaseService } from '@/infra/database/database.service';
+import { PrismaService } from '@/infra/database/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { PostgresStatus } from './interfaces/postgres/postgres.interface';
 
 @Injectable()
 export class StatusService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async getPostgresStatus(): Promise<PostgresStatus> {
     const updatedAt = new Date().toISOString();
 
-    const postgresVersionResult = await this.databaseService.$queryRaw<
+    const postgresVersionResult = await this.prismaService.$queryRaw<
       { server_version: string }[]
     >`SHOW server_version;`;
     const postgresVersion = postgresVersionResult[0].server_version;
 
-    const postgresMaxConnectionsResult = await this.databaseService.$queryRaw<
+    const postgresMaxConnectionsResult = await this.prismaService.$queryRaw<
       { max_connections: string }[]
     >`SHOW max_connections;`;
     const postgresMaxConnections = parseInt(
@@ -22,7 +22,7 @@ export class StatusService {
       10,
     );
 
-    const postgresOpenConnectionsResult = await this.databaseService.$queryRaw<
+    const postgresOpenConnectionsResult = await this.prismaService.$queryRaw<
       {
         open_connections: number;
       }[]
