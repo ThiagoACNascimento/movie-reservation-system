@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { StatusModule } from './modules/status/status.module';
-import { DatabaseModule } from './infra/database/database.module';
+import { PrismaModule } from './infra/database/prisma.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -13,7 +13,7 @@ import { UsersModule } from './modules/users/users.module';
       expandVariables: true,
     }),
     StatusModule,
-    DatabaseModule,
+    PrismaModule,
     UsersModule,
   ],
 })
