@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from '@/generated/prisma/client';
@@ -11,5 +18,11 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  findAll(): Promise<User[]> {
+    return this.usersService.findAll();
   }
 }

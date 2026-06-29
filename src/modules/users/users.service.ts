@@ -7,6 +7,7 @@ import { Prisma, User } from '@/generated/prisma/client';
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  // TODO: SEND REAL EMAIL TO VERIFY | HASH PASSWORD |
   async create(data: Prisma.UserCreateInput): Promise<User> {
     const foundUser = await this.prismaService.user.findUnique({
       where: { email: data.email },
@@ -20,5 +21,9 @@ export class UsersService {
     return this.prismaService.user.create({
       data,
     });
+  }
+
+  findAll(): Promise<User[]> {
+    return this.prismaService.user.findMany();
   }
 }
