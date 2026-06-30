@@ -11,7 +11,7 @@ import { Prisma, User } from '@/generated/prisma/client';
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  // TODO: SEND REAL EMAIL TO VERIFY | HASH PASSWORD |
+  // TODO: SEND REAL EMAIL TO VERIFY | HASH PASSWORD | CHANGE LOGIC TO AUTH MODULE
   async create(data: Prisma.UserCreateInput): Promise<User> {
     const foundUser = await this.prismaService.user.findUnique({
       where: { email: data.email },
