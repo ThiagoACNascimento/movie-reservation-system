@@ -9,8 +9,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { User } from '@/generated/prisma/client';
-import strict from 'assert/strict';
+import { User } from '../../generated/prisma/browser';
 
 @Controller('users')
 export class UsersController {

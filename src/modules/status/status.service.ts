@@ -1,4 +1,4 @@
-import { PrismaService } from '@/infra/database/prisma.service';
+import { PrismaService } from '../../infra/database/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { PostgresStatus } from './interfaces/postgres/postgres.interface';
 
