@@ -4,12 +4,18 @@ services:
     container_name: movie-reservation-test-db
     restart: unless-stopped
     env_file:
-      - ../../../env.test
+      - ../../../.env.test
     ports:
-      - 5432:5432
+      - 5433:5432
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - movie-test-network
+
+networks:
+  movie-test-network:
+    name: movie-test-network
