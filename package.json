@@ -21,10 +21,15 @@
     "prisma:generate": "npx prisma generate",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
-    "test:watch": "jest --watch",
+    "test:watch": "jest --watch --runInBand --verbose",
+    "test:watch:e2e": "NODE_ENV=development NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --watch --runInBand --verbose",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "services:test:up": "docker compose -f src/infra/docker/docker-compose.test.yaml up -d --wait",
+    "services:test:down": "docker compose -f src/infra/docker/docker-compose.test.yaml down",
+    "migrations:test:up": "dotenv -e .env.test -- npx prisma migrate deploy",
+    "test:e2e:dependencies": "npm run services:test:up && npm run migrations:test:up",
+    "test:e2e": "npm run test:e2e:dependencies && NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json && npm run services:test:down"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
