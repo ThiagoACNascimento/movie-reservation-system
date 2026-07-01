@@ -1,12 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../../../src/modules/users/users.service';
 import { PrismaService } from '../../../src/infra/database/prisma.service';
-import bcrypt from 'bcrypt';
+import { BadRequestException } from '@nestjs/common';
 
 describe('UserService', () => {
   let userService: UsersService;
   const prismaMock = {
-    user: { create: jest.fn(), findUnique: jest.fn(), findMany: jest.fn() },
+    user: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+    },
   };
 
   const userInputValue = {
@@ -50,6 +54,20 @@ describe('UserService', () => {
       expect(prismaMock.user.create).toHaveBeenCalledWith({
         data: userInputValue,
       });
+    });
+
+    it('should throw `BadReqeustException`', async () => {
+      prismaMock.user.findUnique.mockResolvedValue(userOutputValue);
+      try {
+        await userService.create(userInputValue);
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+
+        if (error instanceof BadRequestException) {
+          expect(error.message).toEqual('Try create again');
+          expect(error.getStatus()).toBe(400);
+        }
+      }
     });
   });
 });
