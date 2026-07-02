@@ -10,7 +10,7 @@ describe('Status (e2e)', () => {
   const orchestrator = new Orquestrator();
 
   beforeAll(async () => {
-    orchestrator.resetPrismaDatabase();
+    await orchestrator.resetPrismaDatabase();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
