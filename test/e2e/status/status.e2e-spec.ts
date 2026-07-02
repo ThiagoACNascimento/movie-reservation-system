@@ -3,11 +3,15 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../../../src/app.module';
+import { Orquestrator } from '../../orquestrator';
 
 describe('Status (e2e)', () => {
   let app: INestApplication<App>;
+  const orchestrator = new Orquestrator();
 
   beforeAll(async () => {
+    orchestrator.resetPrismaDatabase();
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -37,5 +41,6 @@ describe('Status (e2e)', () => {
 
   afterAll(async () => {
     await app.close();
+    await orchestrator.destroy();
   });
 });
