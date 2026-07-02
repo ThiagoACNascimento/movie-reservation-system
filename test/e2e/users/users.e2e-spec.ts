@@ -3,15 +3,13 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../../../src/app.module';
-import { Orquestrator } from '../../orquestrator';
+import { Orchestrator } from '../../orchestrator';
 
 describe('Users (e2e)', () => {
   let app: INestApplication<App>;
-  const orchestrator = new Orquestrator();
+  const orchestrator = new Orchestrator();
 
   beforeAll(async () => {
-    await orchestrator.resetPrismaDatabase();
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -63,7 +61,7 @@ describe('Users (e2e)', () => {
   describe('Return User (GET)', () => {
     describe('should return one user', () => {
       it('return successfuly', async () => {
-        const user = await orchestrator.createNewUser();
+        const user = await orchestrator.createUser();
         const result = await request(app.getHttpServer())
           .get(`/users/${user.id}`)
           .expect(200);
