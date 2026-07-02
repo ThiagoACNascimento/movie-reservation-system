@@ -1,12 +1,12 @@
-import { PrismaService } from '@/infra/database/prisma.service';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Param,
 } from '@nestjs/common';
-import { Prisma, User } from '@/generated/prisma/client';
+
 import bcrypt from 'bcrypt';
+import { Prisma, User } from '../../generated/prisma/browser';
+import { PrismaService } from '../../infra/database/prisma.service';
 
 @Injectable()
 export class UsersService {
