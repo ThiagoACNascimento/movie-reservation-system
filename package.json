@@ -29,7 +29,8 @@
     "services:test:down": "docker compose -f src/infra/docker/docker-compose.test.yaml down",
     "migrations:test:up": "dotenv -e .env.test -- npx prisma migrate deploy",
     "test:e2e:dependencies": "npm run services:test:up && npm run migrations:test:up",
-    "test:e2e": "npm run test:e2e:dependencies && NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json && npm run services:test:down"
+    "test:e2e": "npm run test:e2e:dependencies && NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json && npm run services:test:down",
+    "prepare": "husky"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -48,6 +49,8 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.0",
+    "@commitlint/config-conventional": "^21.2.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@faker-js/faker": "^10.5.0",
@@ -64,6 +67,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^17.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "prisma": "^7.8.0",
@@ -92,6 +96,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "engines": {
     "node": "24"
