@@ -10,6 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from '../../generated/prisma/browser';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
@@ -17,6 +18,7 @@ export class UsersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: CreateUserDto })
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
