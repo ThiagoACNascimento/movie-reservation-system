@@ -4,6 +4,7 @@ import { StatusModule } from './modules/status/status.module';
 import { PrismaModule } from './infra/database/prisma.module';
 import { UsersModule } from './modules/users/users.module';
 import { CryptModule } from './infra/crypt/Crypt.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CryptModule } from './infra/crypt/Crypt.module';
     PrismaModule,
     UsersModule,
     CryptModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
