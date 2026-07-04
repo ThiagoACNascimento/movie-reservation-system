@@ -1,8 +1,16 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/log-in.dto';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { User } from '../../generated/prisma/client';
+import { type Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +24,16 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() LoginDto: LoginDto) {
-    return this.authService.logIn(LoginDto);
+  async login(
+    @Res({ passthrough: true }) response: Response,
+    @Body() LoginDto: LoginDto,
+  ): Promise<void> {
+    const accessToken = await this.authService.logIn(LoginDto);
+    response.cookie('accessToken', accessToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+    });
   }
 }

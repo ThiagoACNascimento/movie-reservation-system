@@ -1,15 +1,21 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { HashingService } from '../../infra/crypt/hashing/hashing.service';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { LoginDto } from './dtos/log-in.dto';
 import { User } from '../../generated/prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import jwtConfig from './config/jwt.config';
+import { type ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly hashService: HashingService,
+    private readonly jwtService: JwtService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<User> {
@@ -43,7 +49,22 @@ export class AuthService {
       );
     }
 
-    // TODO: add jwt and cookies
-    return true;
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: foundUser.id,
+        email: foundUser.id,
+        role: foundUser.role,
+      },
+      {
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn: this.jwtConfiguration.accessTokenTtl,
+      },
+    );
+
+    return {
+      accessToken,
+    };
   }
 }
