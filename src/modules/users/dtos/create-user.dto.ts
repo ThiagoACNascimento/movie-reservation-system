@@ -4,7 +4,7 @@ import { IsEmail, IsString, MinLength } from 'class-validator';
 export class CreateUserDto {
   @ApiProperty({
     description: 'The user name',
-    default: 'firstNewUser',
+    example: 'MyFirstUser',
     minLength: 10,
   })
   @IsString()
@@ -13,7 +13,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'The user email',
-    default: 'newUser@gmail.com',
+    example: 'newUser@gmail.com',
   })
   @IsEmail()
   email!: string;
@@ -21,7 +21,7 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'The user password',
     minLength: 8,
-    default: '12345678',
+    example: '12345678',
   })
   @IsString()
   @MinLength(8)
