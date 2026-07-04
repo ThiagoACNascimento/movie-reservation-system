@@ -4,13 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import bcrypt from 'bcrypt';
 import { Prisma, User } from '../../generated/prisma/browser';
 import { PrismaService } from '../../infra/database/prisma.service';
+import { HashingService } from '../../infra/crypt/hashing/hashing.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly hashService: HashingService,
+  ) {}
 
   // TODO: SEND REAL EMAIL TO VERIFY | CHANGE LOGIC TO AUTH MODULE
   async create(data: Prisma.UserCreateInput): Promise<User> {
@@ -23,7 +26,7 @@ export class UsersService {
     }
 
     // TODO: MOVE BCRYPT MODULE TO CRYPTOGRAPHY CLASS
-    data.password = await bcrypt.hash(data.password, 10);
+    data.password = await this.hashService.hash(data.password);
 
     return this.prismaService.user.create({
       data,
