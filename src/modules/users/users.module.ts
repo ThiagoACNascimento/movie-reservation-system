@@ -4,8 +4,9 @@ import { UsersController } from './users.controller';
 import { CryptModule } from '../../infra/crypt/Crypt.module';
 
 @Module({
+  imports: [CryptModule],
   controllers: [UsersController],
   providers: [UsersService],
-  imports: [CryptModule],
+  exports: [UsersService],
 })
 export class UsersModule {}

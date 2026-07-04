@@ -25,7 +25,6 @@ export class UsersService {
       throw new BadRequestException('Try create again');
     }
 
-    // TODO: MOVE BCRYPT MODULE TO CRYPTOGRAPHY CLASS
     data.password = await this.hashService.hash(data.password);
 
     return this.prismaService.user.create({
@@ -41,6 +40,15 @@ export class UsersService {
     if (!foundUser) {
       throw new NotFoundException('User not found');
     }
+
+    return foundUser;
+  }
+
+  async findOneByEmailWithPassword(email: string): Promise<User | null> {
+    const foundUser = await this.prismaService.user.findUnique({
+      where: { email },
+      omit: { password: false },
+    });
 
     return foundUser;
   }
