@@ -6,8 +6,6 @@ import { CryptModule } from '../../infra/crypt/Crypt.module';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 
 @Module({
   imports: [
@@ -17,6 +15,7 @@ import { AccessTokenGuard } from './guards/access-token/access-token.guard';
     CryptModule,
   ],
   controllers: [AuthController],
-  providers: [{ provide: APP_GUARD, useClass: AccessTokenGuard }, AuthService],
+  providers: [AuthService],
+  exports: [JwtModule, ConfigModule],
 })
 export class AuthModule {}
