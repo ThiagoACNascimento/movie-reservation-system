@@ -3,10 +3,19 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { CryptModule } from '../../infra/crypt/Crypt.module';
+import { JwtModule } from '@nestjs/jwt';
+import jwtConfig from './config/jwt.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UsersModule, CryptModule],
+  imports: [
+    JwtModule.registerAsync(jwtConfig.asProvider()),
+    ConfigModule.forFeature(jwtConfig),
+    UsersModule,
+    CryptModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService],
+  exports: [JwtModule, ConfigModule],
 })
 export class AuthModule {}
