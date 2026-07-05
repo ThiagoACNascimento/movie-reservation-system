@@ -15,7 +15,7 @@ export class AuthService {
     private readonly hashService: HashingService,
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly jwtConfigs: ConfigType<typeof jwtConfig>,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<User> {
@@ -23,7 +23,7 @@ export class AuthService {
     return this.userService.create(signUpDto);
   }
 
-  async logIn(loginDto: LoginDto) {
+  async logIn(loginDto: LoginDto): Promise<string> {
     const foundUser = await this.userService.findOneByEmailWithPassword(
       loginDto.email,
     );
@@ -52,19 +52,17 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(
       {
         sub: foundUser.id,
-        email: foundUser.id,
+        email: foundUser.email,
         role: foundUser.role,
       },
       {
-        audience: this.jwtConfiguration.audience,
-        issuer: this.jwtConfiguration.issuer,
-        secret: this.jwtConfiguration.secret,
-        expiresIn: this.jwtConfiguration.accessTokenTtl,
+        audience: this.jwtConfigs.audience,
+        issuer: this.jwtConfigs.issuer,
+        secret: this.jwtConfigs.secret,
+        expiresIn: this.jwtConfigs.accessTokenTtl,
       },
     );
 
-    return {
-      accessToken,
-    };
+    return accessToken;
   }
 }
