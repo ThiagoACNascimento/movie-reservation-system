@@ -11,7 +11,9 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from '../../generated/prisma/browser';
 import { ApiBody } from '@nestjs/swagger';
+import { Public } from '../../common/decorators/public.decorator';
 
+@Public()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
