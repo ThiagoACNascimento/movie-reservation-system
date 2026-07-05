@@ -11,7 +11,9 @@ import { LoginDto } from './dtos/log-in.dto';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { User } from '../../generated/prisma/client';
 import { type Response } from 'express';
+import { Public } from '../../common/decorators/public.decorator';
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -34,6 +36,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
+      maxAge: 1000 * 60 * 15,
     });
   }
 }
