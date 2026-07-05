@@ -29,7 +29,7 @@ export class AuthController {
     @Body() LoginDto: LoginDto,
   ): Promise<void> {
     const accessToken = await this.authService.logIn(LoginDto);
-    response.cookie('accessToken', accessToken, {
+    response.cookie('access_token', accessToken, {
       secure: true,
       httpOnly: true,
       sameSite: 'lax',
