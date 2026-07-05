@@ -12,16 +12,7 @@ import { type Request } from 'express';
 import { REQUEST_USER_KEY } from '../../auth.constants';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../../../../common/decorators/public.decorator';
-
-interface JwtPayload {
-  sub: string;
-  email: string;
-  role: string;
-  iat: number;
-  exp: number;
-  aud: string;
-  iss: string;
-}
+import { JwtPayload } from '../../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -55,6 +46,7 @@ export class AccessTokenGuard implements CanActivate {
         this.jwtConfigs,
       );
       request[REQUEST_USER_KEY] = payload;
+      console.log(typeof request[REQUEST_USER_KEY]);
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException();
