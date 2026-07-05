@@ -7,6 +7,7 @@ import { User } from '../../generated/prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { type ConfigType } from '@nestjs/config';
+import { AuthUserData } from './interfaces/auth-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +55,7 @@ export class AuthService {
         sub: foundUser.id,
         email: foundUser.email,
         role: foundUser.role,
-      },
+      } as AuthUserData,
       {
         audience: this.jwtConfigs.audience,
         issuer: this.jwtConfigs.issuer,
