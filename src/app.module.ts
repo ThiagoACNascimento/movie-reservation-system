@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { StatusModule } from './modules/status/status.module';
-import { PrismaModule } from './infra/database/prisma.module';
+import { DatabaseModule } from './infra/database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { CryptModule } from './infra/crypt/Crypt.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -17,7 +17,7 @@ import { AccessTokenGuard } from './modules/auth/guards/access-token/access-toke
       expandVariables: true,
     }),
     StatusModule,
-    PrismaModule,
+    DatabaseModule,
     UsersModule,
     CryptModule,
     AuthModule,

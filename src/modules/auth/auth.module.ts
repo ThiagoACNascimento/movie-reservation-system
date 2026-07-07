@@ -6,6 +6,7 @@ import { CryptModule } from '../../infra/crypt/Crypt.module';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
+import { RefreshTokenStorage } from './refresh/refresh-token.storage';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { ConfigModule } from '@nestjs/config';
     CryptModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, RefreshTokenStorage],
   exports: [JwtModule, ConfigModule],
 })
 export class AuthModule {}

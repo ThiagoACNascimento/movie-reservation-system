@@ -9,6 +9,8 @@ import jwtConfig from './config/jwt.config';
 import { type ConfigType } from '@nestjs/config';
 import { AuthUserData } from './interfaces/auth-user.interface';
 import { CookieAuthData } from './interfaces/cookie-data.interface';
+import { RefreshTokenStorage } from './refresh/refresh-token.storage';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfigs: ConfigType<typeof jwtConfig>,
+    private readonly refreshStorage: RefreshTokenStorage,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<User> {
@@ -55,20 +58,48 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    const { sub } = await this.jwtService.verifyAsync<
-      Pick<AuthUserData, 'sub'>
+    const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
+      Pick<AuthUserData, 'sub'> & { refreshTokenId: string }
     >(refreshToken, {
       secret: this.jwtConfigs.secret,
       audience: this.jwtConfigs.audience,
       issuer: this.jwtConfigs.issuer,
     });
+
     const user = await this.userService.findOne(sub);
 
     if (!user) {
       throw new UnauthorizedException('You are not authorized!');
     }
 
+    const isValid = await this.refreshStorage.validate(user.id, refreshTokenId);
+
+    if (!isValid) {
+      throw new UnauthorizedException('Refresh Token is invalid');
+    }
+
+    await this.refreshStorage.invalidate(user.id);
+
     return await this.createTokens(user);
+  }
+
+  private async createTokens(user: User) {
+    const refreshTokenId = randomBytes(32).toString('hex');
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken<Partial<AuthUserData>>(
+        user.id,
+        this.jwtConfigs.accessTokenTtl,
+        { email: user.email, role: user.role },
+      ),
+      this.signToken(user.id, this.jwtConfigs.refreshTokenTtl, {
+        refreshTokenId: refreshTokenId,
+      }),
+    ]);
+    await this.refreshStorage.create(user.id, refreshTokenId);
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   private async signToken<T>(
@@ -88,21 +119,5 @@ export class AuthService {
         expiresIn,
       },
     );
-  }
-
-  private async createTokens(foundUser: User) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.signToken<Partial<AuthUserData>>(
-        foundUser.id,
-        this.jwtConfigs.accessTokenTtl,
-        { email: foundUser.email, role: foundUser.role },
-      ),
-      this.signToken(foundUser.id, this.jwtConfigs.refreshTokenTtl),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
   }
 }
