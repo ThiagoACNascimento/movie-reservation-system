@@ -12,6 +12,7 @@ import { SignUpDto } from './dtos/sign-up.dto';
 import { User } from '../../generated/prisma/client';
 import { type Response } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
+import { Cookie } from '../../common/decorators/cookie.decorator';
 
 @Public()
 @Controller('auth')
@@ -30,13 +31,40 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() LoginDto: LoginDto,
   ): Promise<void> {
-    const accessToken = await this.authService.logIn(LoginDto);
-    response.cookie('access_token', accessToken, {
+    const token = await this.authService.logIn(LoginDto);
+    this.buildAuthAccessCookie(response, token.accessToken);
+    this.buildAuthRefreshCookie(response, token.refreshToken);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Res({ passthrough: true }) response: Response,
+    @Cookie('refresh_token') refreshToken: string,
+  ) {
+    const tokens = await this.authService.refresh(refreshToken);
+    this.buildAuthAccessCookie(response, tokens.accessToken);
+    this.buildAuthRefreshCookie(response, tokens.refreshToken);
+  }
+
+  // TODO: move cookie logic to a dedicate escope
+  private buildAuthAccessCookie(response: Response, token: string) {
+    response.cookie('access_token', token, {
       secure: true,
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
       maxAge: 1000 * 60 * 15,
+    });
+  }
+
+  private buildAuthRefreshCookie(response: Response, token: string) {
+    response.cookie('refresh_token', token, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/auth/refresh',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     });
   }
 }
