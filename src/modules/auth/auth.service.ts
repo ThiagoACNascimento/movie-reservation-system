@@ -9,6 +9,11 @@ import jwtConfig from './config/jwt.config';
 import { type ConfigType } from '@nestjs/config';
 import { AuthUserData } from './interfaces/auth-user.interface';
 
+type LoginData = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,7 +29,7 @@ export class AuthService {
     return this.userService.create(signUpDto);
   }
 
-  async logIn(loginDto: LoginDto): Promise<Record<string, string>> {
+  async logIn(loginDto: LoginDto): Promise<LoginData> {
     const foundUser = await this.userService.findOneByEmailWithPassword(
       loginDto.email,
     );
@@ -50,15 +55,14 @@ export class AuthService {
       );
     }
 
-    const accessToken = await this.signToken<Partial<AuthUserData>>(
-      foundUser.id,
-      this.jwtConfigs.accessTokenTtl,
-      { email: foundUser.email, role: foundUser.role },
-    );
-    const refreshToken = await this.signToken(
-      foundUser.id,
-      this.jwtConfigs.refreshTokenTtl,
-    );
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken<Partial<AuthUserData>>(
+        foundUser.id,
+        this.jwtConfigs.accessTokenTtl,
+        { email: foundUser.email, role: foundUser.role },
+      ),
+      this.signToken(foundUser.id, this.jwtConfigs.refreshTokenTtl),
+    ]);
 
     return {
       accessToken,
