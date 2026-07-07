@@ -8,11 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { type ConfigType } from '@nestjs/config';
 import { AuthUserData } from './interfaces/auth-user.interface';
-
-type LoginData = {
-  accessToken: string;
-  refreshToken: string;
-};
+import { CookieAuthData } from './interfaces/cookie-data.interface';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +25,7 @@ export class AuthService {
     return this.userService.create(signUpDto);
   }
 
-  async logIn(loginDto: LoginDto): Promise<LoginData> {
+  async logIn(loginDto: LoginDto): Promise<CookieAuthData> {
     const foundUser = await this.userService.findOneByEmailWithPassword(
       loginDto.email,
     );
@@ -55,19 +51,24 @@ export class AuthService {
       );
     }
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.signToken<Partial<AuthUserData>>(
-        foundUser.id,
-        this.jwtConfigs.accessTokenTtl,
-        { email: foundUser.email, role: foundUser.role },
-      ),
-      this.signToken(foundUser.id, this.jwtConfigs.refreshTokenTtl),
-    ]);
+    return await this.createTokens(foundUser);
+  }
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+  async refresh(refreshToken: string) {
+    const { sub } = await this.jwtService.verifyAsync<
+      Pick<AuthUserData, 'sub'>
+    >(refreshToken, {
+      secret: this.jwtConfigs.secret,
+      audience: this.jwtConfigs.audience,
+      issuer: this.jwtConfigs.issuer,
+    });
+    const user = await this.userService.findOne(sub);
+
+    if (!user) {
+      throw new UnauthorizedException('You are not authorized!');
+    }
+
+    return await this.createTokens(user);
   }
 
   private async signToken<T>(
@@ -87,5 +88,21 @@ export class AuthService {
         expiresIn,
       },
     );
+  }
+
+  private async createTokens(foundUser: User) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken<Partial<AuthUserData>>(
+        foundUser.id,
+        this.jwtConfigs.accessTokenTtl,
+        { email: foundUser.email, role: foundUser.role },
+      ),
+      this.signToken(foundUser.id, this.jwtConfigs.refreshTokenTtl),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
