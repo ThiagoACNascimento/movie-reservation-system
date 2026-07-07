@@ -30,13 +30,29 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() LoginDto: LoginDto,
   ): Promise<void> {
-    const accessToken = await this.authService.logIn(LoginDto);
-    response.cookie('access_token', accessToken, {
+    const token = await this.authService.logIn(LoginDto);
+    this.buildAuthAccessCookie(response, token.accessToken);
+    this.buildAuthRefreshCookie(response, token.refreshToken);
+  }
+
+  // TODO: move cookie logic to a dedicate escope
+  private buildAuthAccessCookie(response: Response, token: string) {
+    response.cookie('access_token', token, {
       secure: true,
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
       maxAge: 1000 * 60 * 15,
+    });
+  }
+
+  private buildAuthRefreshCookie(response: Response, token: string) {
+    response.cookie('refresh_token', token, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/refresh',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     });
   }
 }
