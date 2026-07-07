@@ -24,7 +24,7 @@ export class AuthService {
     return this.userService.create(signUpDto);
   }
 
-  async logIn(loginDto: LoginDto): Promise<string> {
+  async logIn(loginDto: LoginDto): Promise<Record<string, string>> {
     const foundUser = await this.userService.findOneByEmailWithPassword(
       loginDto.email,
     );
@@ -50,20 +50,38 @@ export class AuthService {
       );
     }
 
-    const accessToken = await this.jwtService.signAsync(
+    const accessToken = await this.signToken<Partial<AuthUserData>>(
+      foundUser.id,
+      this.jwtConfigs.accessTokenTtl,
+      { email: foundUser.email, role: foundUser.role },
+    );
+    const refreshToken = await this.signToken(
+      foundUser.id,
+      this.jwtConfigs.refreshTokenTtl,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private async signToken<T>(
+    userId: string,
+    expiresIn: number,
+    payload?: T,
+  ): Promise<string> {
+    return await this.jwtService.signAsync(
       {
-        sub: foundUser.id,
-        email: foundUser.email,
-        role: foundUser.role,
+        sub: userId,
+        ...payload,
       } as AuthUserData,
       {
         audience: this.jwtConfigs.audience,
         issuer: this.jwtConfigs.issuer,
         secret: this.jwtConfigs.secret,
-        expiresIn: this.jwtConfigs.accessTokenTtl,
+        expiresIn,
       },
     );
-
-    return accessToken;
   }
 }
