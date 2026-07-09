@@ -18,6 +18,10 @@ describe('Users (e2e)', () => {
     await app.init();
   });
 
+  beforeEach(async () => {
+    await orchestrator.resetPrismaDatabase();
+  });
+
   describe('Create User (POST)', () => {
     it('should return a new user', async () => {
       const result = await request(app.getHttpServer())
@@ -31,21 +35,25 @@ describe('Users (e2e)', () => {
 
       expect(result.body).not.toHaveProperty('password');
       expect(result.body).toEqual({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         id: result.body.id,
         name: 'firstNewUser',
         email: 'firstNewUser@gmail.com',
         role: 'default',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         created_at: result.body.created_at,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         updated_at: result.body.updated_at,
       });
     });
 
     it('should throw `BadRequestException` when user aready exists', async () => {
+      const user = await orchestrator.createUser();
       const result = await request(app.getHttpServer())
         .post('/users')
         .send({
-          name: 'firstNewUser',
-          email: 'firstNewUser@gmail.com',
+          name: user.name,
+          email: user.email,
           password: '12345678',
         })
         .expect(400);
@@ -66,7 +74,9 @@ describe('Users (e2e)', () => {
           .get(`/users/${user.id}`)
           .expect(200);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         expect(Date.parse(result.body.created_at)).not.toBeNaN();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         expect(Date.parse(result.body.updated_at)).not.toBeNaN();
 
         // IS THE BODY DIFFERENT FROM THE USER? WHY?
@@ -95,12 +105,16 @@ describe('Users (e2e)', () => {
 
     describe('should return all users', () => {
       it('return successfuly', async () => {
+        await orchestrator.createManyUsers(5);
         const result = await request(app.getHttpServer())
           .get(`/users`)
           .expect(200);
 
         expect(Array.isArray(result.body)).toBe(true);
         expect(result.body).not.toEqual([]);
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(result.body.length).toBe(5);
       });
 
       it('return empty array', async () => {
