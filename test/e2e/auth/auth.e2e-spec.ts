@@ -209,4 +209,24 @@ describe('Auth (e2e)', () => {
       });
     });
   });
+
+  describe('Logout (POST)', () => {
+    it('should remove `access_token` and `refresh_token`', async () => {
+      const user = await orchestrator.createUser({ password: '12345678' });
+      const result = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: user.email,
+          password: '12345678',
+        })
+        .expect(200);
+
+      const logoutResult = await request(app.getHttpServer())
+        .post('/auth/logout')
+        .set('Cookie', result.headers['set-cookie'])
+        .expect(204);
+
+      expect(logoutResult.headers).not.toHaveProperty('set-cookie');
+    });
+  });
 });
