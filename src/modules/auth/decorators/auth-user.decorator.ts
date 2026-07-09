@@ -10,6 +10,7 @@ export const AuthUser = createParamDecorator(
     const user: AuthUserData | undefined = request[
       REQUEST_USER_KEY
     ] as JwtPayload;
+
     return field ? user?.[field] : user;
   },
 );
