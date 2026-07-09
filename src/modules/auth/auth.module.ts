@@ -7,6 +7,9 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { RefreshTokenStorage } from './refresh/refresh-token.storage';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from './guards/access-token/access-token.guard';
+import { RolesGuard } from './guards/access-token/roles.guard';
 
 @Module({
   imports: [
@@ -16,7 +19,12 @@ import { RefreshTokenStorage } from './refresh/refresh-token.storage';
     CryptModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, RefreshTokenStorage],
+  providers: [
+    { provide: APP_GUARD, useClass: AccessTokenGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    AuthService,
+    RefreshTokenStorage,
+  ],
   exports: [JwtModule, ConfigModule],
 })
 export class AuthModule {}
