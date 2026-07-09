@@ -29,7 +29,7 @@
     "services:test:down": "docker compose -f src/infra/docker/docker-compose.test.yaml down",
     "migrations:test:up": "dotenv -e .env.test -- npx prisma migrate deploy",
     "test:e2e:dependencies": "npm run services:test:up && npm run migrations:test:up",
-    "test:e2e": "npm run test:e2e:dependencies && NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json && npm run services:test:down",
+    "test:e2e": "npm run test:e2e:dependencies && NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand && npm run services:test:down",
     "prepare": "husky"
   },
   "dependencies": {

@@ -24,32 +24,35 @@ export class AccessTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-
-    if (isPublic) {
-      return true;
-    }
-
-    const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractAccessTokenFromCookies(request);
-
-    if (!token) {
-      throw new UnauthorizedException('You are not logging');
-    }
-
     try {
+      const isPublic = this.reflector.getAllAndOverride<boolean>(
+        IS_PUBLIC_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
+      if (isPublic) {
+        return true;
+      }
+
+      const request = context.switchToHttp().getRequest<Request>();
+      const token = this.extractAccessTokenFromCookies(request);
+
+      if (!token) {
+        throw new UnauthorizedException('You are not logging');
+      }
+
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         token,
         this.jwtConfigs,
       );
+
       request[REQUEST_USER_KEY] = payload;
-      console.log(typeof request[REQUEST_USER_KEY]);
     } catch (error) {
-      console.log(error);
-      throw new UnauthorizedException();
+      if (!(error instanceof UnauthorizedException)) {
+        throw new UnauthorizedException();
+      }
+
+      throw error;
     }
 
     return true;
