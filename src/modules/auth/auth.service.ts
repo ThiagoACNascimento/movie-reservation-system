@@ -83,6 +83,20 @@ export class AuthService {
     }
   }
 
+  async logout(refreshToken: string) {
+    const { sub } = await this.jwtService.verifyAsync<
+      Pick<AuthUserData, 'sub'>
+    >(refreshToken, {
+      secret: this.jwtConfigs.secret,
+      audience: this.jwtConfigs.audience,
+      issuer: this.jwtConfigs.issuer,
+    });
+
+    const user = await this.userService.findOne(sub);
+
+    await this.refreshStorage.invalidate(user.id);
+  }
+
   private async createTokens(user: User) {
     const refreshTokenId = randomBytes(32).toString('hex');
     const [accessToken, refreshToken] = await Promise.all([

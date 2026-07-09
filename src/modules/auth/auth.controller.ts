@@ -47,6 +47,20 @@ export class AuthController {
     this.buildAuthRefreshCookie(response, tokens.refreshToken);
   }
 
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @Cookie('refresh_token') refreshToken: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    if (refreshToken) {
+      return this.authService.logout(refreshToken);
+    }
+
+    response.clearCookie('access_token', { path: '/' });
+    response.clearCookie('refresh_token', { path: '/auth/refresh' });
+  }
+
   // TODO: move cookie logic to a dedicate escope
   private buildAuthAccessCookie(response: Response, token: string) {
     response.cookie('access_token', token, {
