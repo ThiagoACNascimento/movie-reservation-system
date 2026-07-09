@@ -51,6 +51,19 @@ export class Orchestrator extends PrismaClient {
     });
   }
 
+  async createUserWithoutDatabase(userCreate?: UserCreateInterface) {
+    const password = userCreate?.password ?? faker.internet.password();
+    const hashedPassword = await bcrypt.hash(password, 1);
+
+    return {
+      data: {
+        name: userCreate?.name ?? faker.person.fullName(),
+        email: userCreate?.email ?? faker.internet.email(),
+        password: hashedPassword,
+      },
+    };
+  }
+
   async createManyUsers(
     count: number,
     userCreate?: UserCreateInterface,
@@ -70,6 +83,10 @@ export class Orchestrator extends PrismaClient {
         await this.$executeRawUnsafe(`TRUNCATE TABLE "${tablename}" CASCADE;`);
       }
     }
+  }
+
+  async deleteUser(id: string) {
+    await this.user.delete({ where: { id } });
   }
 
   async destroy(): Promise<void> {
