@@ -11,6 +11,7 @@ import { AuthUserData } from './interfaces/auth-user.interface';
 import { CookieAuthData } from './interfaces/cookie-data.interface';
 import { RefreshTokenStorage } from './refresh/refresh-token.storage';
 import { randomBytes } from 'crypto';
+import { InvalidRefreshTokenError } from '../../infra/errors/invalid-refresh-token.error';
 
 @Injectable()
 export class AuthService {
@@ -58,29 +59,28 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
-      Pick<AuthUserData, 'sub'> & { refreshTokenId: string }
-    >(refreshToken, {
-      secret: this.jwtConfigs.secret,
-      audience: this.jwtConfigs.audience,
-      issuer: this.jwtConfigs.issuer,
-    });
+    try {
+      const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
+        Pick<AuthUserData, 'sub'> & { refreshTokenId: string }
+      >(refreshToken, {
+        secret: this.jwtConfigs.secret,
+        audience: this.jwtConfigs.audience,
+        issuer: this.jwtConfigs.issuer,
+      });
 
-    const user = await this.userService.findOne(sub);
+      const user = await this.userService.findOne(sub);
 
-    if (!user) {
-      throw new UnauthorizedException('You are not authorized!');
+      await this.refreshStorage.validate(user.id, refreshTokenId);
+      await this.refreshStorage.invalidate(user.id);
+
+      return await this.createTokens(user);
+    } catch (error) {
+      if (error instanceof InvalidRefreshTokenError) {
+        throw new UnauthorizedException('Access denied');
+      }
+
+      throw new UnauthorizedException();
     }
-
-    const isValid = await this.refreshStorage.validate(user.id, refreshTokenId);
-
-    if (!isValid) {
-      throw new UnauthorizedException('Refresh Token is invalid');
-    }
-
-    await this.refreshStorage.invalidate(user.id);
-
-    return await this.createTokens(user);
   }
 
   private async createTokens(user: User) {
