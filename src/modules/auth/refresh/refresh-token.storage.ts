@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../../../infra/database/redis.service';
 import { createHash } from 'crypto';
+import { InvalidRefreshTokenError } from '../../../infra/errors/invalid-refresh-token.error';
 
 @Injectable()
 export class RefreshTokenStorage {
@@ -14,7 +15,13 @@ export class RefreshTokenStorage {
   async validate(userId: string, tokenId: string): Promise<boolean> {
     const tokenHash = this.hashToken(tokenId);
     const storedId = await this.redisService.get(this.getKey(userId));
-    return storedId === tokenHash;
+
+    if (storedId !== tokenHash) {
+      // TODO: Disconnect the user and notify them that their access has been compromised
+      throw new InvalidRefreshTokenError();
+    }
+
+    return true;
   }
 
   async invalidate(userId: string): Promise<void> {
