@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../../../src/app.module';
-import { Orchestrator } from '../../orchestrator';
 
 describe('Status (e2e)', () => {
   let app: INestApplication<App>;
@@ -23,6 +22,7 @@ describe('Status (e2e)', () => {
       .expect(200);
 
     expect(result.body).toEqual({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       updated_at: result.body.updated_at,
       status: {
         database: {
