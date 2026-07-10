@@ -18,6 +18,7 @@
     "migrations:create": "dotenv -e .env.development -- npx prisma migrate dev --create-only --name",
     "migrations:up": "dotenv -e .env.development -- npx prisma migrate deploy",
     "migrations:restart": "npx prisma migrate restart",
+    "migrations:reset": "npx prisma migrate reset",
     "prisma:generate": "npx prisma generate",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
