@@ -19,6 +19,16 @@ enum Role {
   default
 }
 
+enum Classification {
+  L
+  six      @map("6")
+  ten      @map("10")
+  twoelve  @map("12")
+  fourteen @map("14")
+  sixteen  @map("16")
+  eighteen @map("18")
+}
+
 model User {
   id String @id @default(uuid())
   name String @db.VarChar(256)
@@ -29,4 +39,25 @@ model User {
   updated_at DateTime @db.Timestamptz() @updatedAt
 
   @@map("users")
+}
+
+
+
+model Movie {
+  id String @id @default(uuid())
+  name String @db.VarChar(256)
+  slug String @db.VarChar(256) @unique
+  releaseDate DateTime @db.Timestamptz() @map("release_date")
+  score Float @default(0)
+  duration Int @db.Integer
+  // Will classification be a new model?
+  classification String @db.VarChar(2)
+  // Will gender be a new model?
+  gender String[]
+  synopsis String @db.VarChar(4000)
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
+  //...add new columns later
+
+  @@map("movies")
 }
