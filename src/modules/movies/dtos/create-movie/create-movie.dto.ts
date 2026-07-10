@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsDate,
+  IsEnum,
   IsInt,
   IsNumber,
   IsString,
@@ -10,6 +11,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { Classification } from '../../../../generated/prisma/enums';
 
 export class CreateMovieDto {
   @IsString()
@@ -34,10 +36,8 @@ export class CreateMovieDto {
   @IsInt()
   duration!: number;
 
-  @IsString()
-  @MaxLength(2)
-  @MinLength(1)
-  classification!: string;
+  @IsEnum(Classification)
+  classification!: Classification;
 
   @IsArray()
   gender!: string[];
