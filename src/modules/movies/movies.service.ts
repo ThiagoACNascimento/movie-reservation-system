@@ -7,7 +7,9 @@ export class MoviesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(data: Prisma.MovieCreateInput): Promise<Movie> {
-    const movieExists = await this.getBySlug(data.slug);
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { slug: data.slug },
+    });
 
     if (movieExists) {
       throw new BadRequestException('The movie aready exists!');

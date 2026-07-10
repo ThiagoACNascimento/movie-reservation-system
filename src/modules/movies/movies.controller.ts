@@ -1,22 +1,24 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { Movie } from '../../generated/prisma/client';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('movies')
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
+  // TODO: create a custom slug generation function
   @Post()
-  @Public()
+  @Roles('admin')
   async create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
     return this.moviesService.create(createMovieDto);
   }
 
-  @Get()
+  @Get(':slug')
   @Public()
-  getOne() {
-    return [];
+  getOne(@Param('slug') slug: string) {
+    return this.moviesService.getBySlug(slug);
   }
 }
