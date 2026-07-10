@@ -51,7 +51,7 @@ model Movie {
   score Float @default(0)
   duration Int @db.Integer
   // Will classification be a new model?
-  classification String @db.VarChar(2)
+  classification Classification
   // Will gender be a new model?
   gender String[]
   synopsis String @db.VarChar(4000)
