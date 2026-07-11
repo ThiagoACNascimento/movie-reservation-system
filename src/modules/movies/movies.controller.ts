@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -33,7 +35,11 @@ export class MoviesController {
 
   @Patch(':id')
   @Roles('admin')
-  update(@Param('id') id: string, @Body() updateDto: UpdateMovieDto) {
+  @HttpCode(HttpStatus.OK)
+  update(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateMovieDto,
+  ): Promise<Movie> {
     if (Object.keys(updateDto).length === 0) {
       throw new BadRequestException(
         'You need to include at least one property! ',
