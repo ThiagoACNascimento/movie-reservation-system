@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -46,5 +47,12 @@ export class MoviesController {
       );
     }
     return this.moviesService.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  @Roles('admin')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id') id: string): Promise<void> {
+    return this.moviesService.remove(id);
   }
 }

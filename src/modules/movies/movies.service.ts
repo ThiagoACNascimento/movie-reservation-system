@@ -49,4 +49,16 @@ export class MoviesService {
       data: updateDto,
     });
   }
+
+  async remove(id: string): Promise<void> {
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { id },
+    });
+
+    if (!movieExists) {
+      throw new NotFoundException('Movie not found!');
+    }
+
+    await this.prismaService.movie.delete({ where: { id } });
+  }
 }
