@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { Movie, Prisma } from '../../generated/prisma/client';
+import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -28,5 +33,20 @@ export class MoviesService {
     }
 
     return movie;
+  }
+
+  async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { id },
+    });
+
+    if (!movieExists) {
+      throw new NotFoundException('Movie not found!');
+    }
+
+    return this.prismaService.movie.update({
+      where: { id },
+      data: updateDto,
+    });
   }
 }
