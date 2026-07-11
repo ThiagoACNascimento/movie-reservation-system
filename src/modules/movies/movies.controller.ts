@@ -34,8 +34,16 @@ export class MoviesController {
 
   @Get(':slug')
   @Public()
+  @HttpCode(HttpStatus.OK)
   getOne(@Param('slug') slug: string) {
     return this.moviesService.getBySlug(slug);
+  }
+
+  @Get()
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  getMany(): Promise<Movie[]> {
+    return this.moviesService.getMany();
   }
 
   @Patch(':id')

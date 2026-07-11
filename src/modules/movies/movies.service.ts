@@ -35,6 +35,10 @@ export class MoviesService {
     return movie;
   }
 
+  async getMany(): Promise<Movie[]> {
+    return this.prismaService.movie.findMany();
+  }
+
   async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
     const movieExists = await this.prismaService.movie.findUnique({
       where: { id },
