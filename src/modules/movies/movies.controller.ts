@@ -21,7 +21,6 @@ import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
-  // TODO: create a custom slug generation function
   @Post()
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
@@ -55,7 +54,7 @@ export class MoviesController {
   }
 
   @Delete(':id')
-  // @Roles('admin')
+  @Roles('admin')
   @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string): Promise<void> {

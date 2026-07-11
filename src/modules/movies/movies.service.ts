@@ -46,7 +46,9 @@ export class MoviesService {
 
     return this.prismaService.movie.update({
       where: { id },
-      data: updateDto,
+      data: updateDto.name
+        ? { slug: this.createSlug(updateDto.name), ...updateDto }
+        : updateDto,
     });
   }
 
