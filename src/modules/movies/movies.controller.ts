@@ -24,8 +24,13 @@ export class MoviesController {
   // TODO: create a custom slug generation function
   @Post()
   @Roles('admin')
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
-    return this.moviesService.create(createMovieDto);
+    const slug = this.moviesService.createSlug(createMovieDto.name);
+    return this.moviesService.create({
+      slug,
+      ...createMovieDto,
+    });
   }
 
   @Get(':slug')
@@ -50,7 +55,8 @@ export class MoviesController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  // @Roles('admin')
+  @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string): Promise<void> {
     return this.moviesService.remove(id);
