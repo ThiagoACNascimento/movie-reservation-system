@@ -19,11 +19,6 @@ export class CreateMovieDto {
   @MaxLength(256)
   name!: string;
 
-  @IsString()
-  @MinLength(10)
-  @MaxLength(256)
-  slug!: string;
-
   @IsDate()
   @Type(() => Date)
   releaseDate!: Date;
