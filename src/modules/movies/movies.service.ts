@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { Movie, Prisma } from '../../generated/prisma/client';
+import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -28,5 +33,49 @@ export class MoviesService {
     }
 
     return movie;
+  }
+
+  async getMany(): Promise<Movie[]> {
+    return this.prismaService.movie.findMany();
+  }
+
+  async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { id },
+    });
+
+    if (!movieExists) {
+      throw new NotFoundException('Movie not found!');
+    }
+
+    return this.prismaService.movie.update({
+      where: { id },
+      data: updateDto.name
+        ? { slug: this.createSlug(updateDto.name), ...updateDto }
+        : updateDto,
+    });
+  }
+
+  async remove(id: string): Promise<void> {
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { id },
+    });
+
+    if (!movieExists) {
+      throw new NotFoundException('Movie not found!');
+    }
+
+    await this.prismaService.movie.delete({ where: { id } });
+  }
+
+  createSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 }
