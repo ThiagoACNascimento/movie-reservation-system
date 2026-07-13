@@ -16,6 +16,7 @@ import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { Movie } from '../../generated/prisma/client';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('movies')
 export class MoviesController {
@@ -24,8 +25,9 @@ export class MoviesController {
   @Post()
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: CreateMovieDto })
   async create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
-    const slug = this.moviesService.createSlug(createMovieDto.title);
+    const slug = this.moviesService.createSlug(createMovieDto.originalTitle);
     return this.moviesService.create({
       slug,
       ...createMovieDto,
