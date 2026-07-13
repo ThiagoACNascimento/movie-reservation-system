@@ -9,6 +9,5 @@ expand(env);
 
 export default async function globalSetup() {
   const orchestrator = new Orchestrator();
-  await orchestrator.resetPrismaDatabase();
   await orchestrator.destroy();
 }
