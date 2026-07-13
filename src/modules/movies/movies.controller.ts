@@ -25,7 +25,7 @@ export class MoviesController {
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
-    const slug = this.moviesService.createSlug(createMovieDto.name);
+    const slug = this.moviesService.createSlug(createMovieDto.title);
     return this.moviesService.create({
       slug,
       ...createMovieDto,
