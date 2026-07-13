@@ -41,9 +41,9 @@ describe('Users (e2e)', () => {
         email: 'firstNewUser@gmail.com',
         role: 'default',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        created_at: result.body.created_at,
+        createdAt: result.body.createdAt,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        updated_at: result.body.updated_at,
+        updatedAt: result.body.updatedAt,
       });
     });
 
@@ -75,9 +75,9 @@ describe('Users (e2e)', () => {
           .expect(200);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-        expect(Date.parse(result.body.created_at)).not.toBeNaN();
+        expect(Date.parse(result.body.createdAt)).not.toBeNaN();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-        expect(Date.parse(result.body.updated_at)).not.toBeNaN();
+        expect(Date.parse(result.body.updatedAt)).not.toBeNaN();
 
         // IS THE BODY DIFFERENT FROM THE USER? WHY?
         expect(result.body).toEqual({
@@ -85,8 +85,8 @@ describe('Users (e2e)', () => {
           name: user.name,
           email: user.email,
           role: 'default',
-          created_at: user.created_at.toISOString(),
-          updated_at: user.updated_at.toISOString(),
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
         });
       });
 
