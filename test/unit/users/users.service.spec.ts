@@ -24,8 +24,8 @@ describe('UserService', () => {
     name: 'New User',
     email: 'newuser@example.com',
     role: 'default',
-    created_at: '2026-06-29T22:33:57.423Z',
-    updated_at: '2026-06-29T22:33:57.423Z',
+    createdAt: '2026-06-29T22:33:57.423Z',
+    updatedAt: '2026-06-29T22:33:57.423Z',
   };
 
   beforeAll(async () => {

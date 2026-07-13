@@ -55,9 +55,9 @@ describe('Auth (e2e)', () => {
         email: 'firstSignUpUser@gmail.com',
         role: 'default',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        created_at: result.body.created_at,
+        createdAt: result.body.createdAt,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        updated_at: result.body.updated_at,
+        updatedAt: result.body.updatedAt,
       });
     });
 
