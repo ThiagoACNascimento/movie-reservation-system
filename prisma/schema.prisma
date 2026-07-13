@@ -37,8 +37,6 @@ model User {
   role Role @default(default)
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
-
-  @@map("users")
 }
 
 
@@ -61,6 +59,4 @@ model Movie {
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
   //...add new columns later
-
-  @@map("movies")
 }
