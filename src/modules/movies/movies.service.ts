@@ -50,8 +50,8 @@ export class MoviesService {
 
     return this.prismaService.movie.update({
       where: { id },
-      data: updateDto.name
-        ? { slug: this.createSlug(updateDto.name), ...updateDto }
+      data: updateDto.originalTitle
+        ? { slug: this.createSlug(updateDto.originalTitle), ...updateDto }
         : updateDto,
     });
   }
@@ -68,8 +68,8 @@ export class MoviesService {
     await this.prismaService.movie.delete({ where: { id } });
   }
 
-  createSlug(name: string): string {
-    return name
+  createSlug(originalTitle: string): string {
+    return originalTitle
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
