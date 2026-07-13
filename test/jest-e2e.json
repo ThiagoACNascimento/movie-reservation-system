@@ -6,5 +6,6 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "globalSetup": "<rootDir>/jest-global-setup.ts"
+  "globalSetup": "<rootDir>/jest-global-setup.ts",
+  "setupFiles": ["<rootDir>/jest-setup-env.ts"]
 }

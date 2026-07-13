@@ -1,7 +1,5 @@
-// test/jest-global-setup.ts
 import { resolve } from 'path';
 import { config } from 'dotenv';
-import { Orchestrator } from './orchestrator';
 import { expand } from 'dotenv-expand';
 
 const env = config({
@@ -9,8 +7,3 @@ const env = config({
   override: true,
 });
 expand(env);
-
-export default async function globalSetup() {
-  const orchestrator = new Orchestrator();
-  await orchestrator.destroy();
-}
