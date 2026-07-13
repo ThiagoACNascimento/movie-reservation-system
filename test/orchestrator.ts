@@ -1,6 +1,5 @@
 import { PrismaClient, User } from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { execSync } from 'child_process';
 import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 
@@ -21,12 +20,20 @@ export class Orchestrator extends PrismaClient {
   async resetPrismaDatabase(): Promise<void> {
     this.guardAgainstNonTestDatabase();
 
-    execSync('npx prisma migrate reset --force', {
-      env: { ...process.env },
-      stdio: 'inherit',
-    });
+    const tables = await this.$queryRaw<Array<{ tablename: string }>>`
+    SELECT tablename FROM pg_tables
+    WHERE schemaname = 'public' AND tablename != '_prisma_migrations'
+  `;
 
-    await this.$connect();
+    const tableNames = tables
+      .map(({ tablename }) => `"public"."${tablename}"`)
+      .join(', ');
+
+    if (tableNames) {
+      await this.$executeRawUnsafe(
+        `TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE;`,
+      );
+    }
   }
 
   private guardAgainstNonTestDatabase(): void {

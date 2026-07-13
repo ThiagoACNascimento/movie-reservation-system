@@ -35,29 +35,31 @@ model User {
   email String @db.VarChar(256) @unique
   password String @db.VarChar(72) @map("password_hash")
   role Role @default(default)
-  created_at DateTime @db.Timestamptz() @default(now())
-  updated_at DateTime @db.Timestamptz() @updatedAt
-
-  @@map("users")
+  createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
 }
 
 
 
 model Movie {
   id String @id @default(uuid())
-  name String @db.VarChar(256)
+  title String @db.VarChar(256)
+  originalTitle String @db.VarChar(256) @map("original_title")
   slug String @db.VarChar(256) @unique
   releaseDate DateTime @db.Timestamptz() @map("release_date")
+  // add enum status values
+  status String @db.VarChar(50)
   score Float @default(0)
   duration Int @db.Integer
+  // enable null for now
+  poster_url String? @db.VarChar(256)
   // Will classification be a new model?
+  // Be int or enum?? "L, 10, 12..." or "0 (L), 10, 12..."
   classification Classification
   // Will gender be a new model?
   gender String[]
   synopsis String @db.VarChar(4000)
-  created_at DateTime @db.Timestamptz() @default(now())
-  updated_at DateTime @db.Timestamptz() @updatedAt
+  createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
   //...add new columns later
-
-  @@map("movies")
 }

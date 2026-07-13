@@ -17,7 +17,17 @@ export class CreateMovieDto {
   @IsString()
   @MinLength(10)
   @MaxLength(256)
-  name!: string;
+  title!: string;
+
+  @IsString()
+  @MinLength(10)
+  @MaxLength(256)
+  originalTitle!: string;
+
+  @IsString()
+  @MinLength(5)
+  @MaxLength(50)
+  status!: string;
 
   @IsDate()
   @Type(() => Date)
