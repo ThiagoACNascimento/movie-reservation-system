@@ -47,11 +47,13 @@ model Movie {
   originalTitle String @db.VarChar(256) @map("original_title")
   slug String @db.VarChar(256) @unique
   releaseDate DateTime @db.Timestamptz() @map("release_date")
+  // add enum status values
   status String @db.VarChar(50)
   score Float @default(0)
   duration Int @db.Integer
   poster_url String @db.VarChar(256)
   // Will classification be a new model?
+  // Be int or enum?? "L, 10, 12..." or "0 (L), 10, 12..."
   classification Classification
   // Will gender be a new model?
   gender String[]
