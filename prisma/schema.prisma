@@ -35,8 +35,8 @@ model User {
   email String @db.VarChar(256) @unique
   password String @db.VarChar(72) @map("password_hash")
   role Role @default(default)
-  created_at DateTime @db.Timestamptz() @default(now())
-  updated_at DateTime @db.Timestamptz() @updatedAt
+  createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
 }
 
 
@@ -44,7 +44,7 @@ model User {
 model Movie {
   id String @id @default(uuid())
   title String @db.VarChar(256)
-  original_title String @db.VarChar(256)
+  originalTitle String @db.VarChar(256) @map("original_title")
   slug String @db.VarChar(256) @unique
   releaseDate DateTime @db.Timestamptz() @map("release_date")
   status String @db.VarChar(50)
@@ -56,7 +56,7 @@ model Movie {
   // Will gender be a new model?
   gender String[]
   synopsis String @db.VarChar(4000)
-  created_at DateTime @db.Timestamptz() @default(now())
-  updated_at DateTime @db.Timestamptz() @updatedAt
+  createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
   //...add new columns later
 }
