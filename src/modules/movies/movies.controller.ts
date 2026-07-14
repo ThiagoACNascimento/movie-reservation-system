@@ -9,6 +9,8 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { Public } from '../../common/decorators/public.decorator';
@@ -16,7 +18,10 @@ import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { Movie } from '../../generated/prisma/client';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadMoviePosterDto } from './dtos/upload-movie/upload-movie-poster.dto';
+import { posterUploadOptions } from './config/multer.config';
 
 @Controller('movies')
 export class MoviesController {
@@ -25,11 +30,17 @@ export class MoviesController {
   @Post()
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
-  @ApiBody({ type: CreateMovieDto })
-  async create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UploadMoviePosterDto })
+  @UseInterceptors(FileInterceptor('poster', posterUploadOptions))
+  async create(
+    @Body() createMovieDto: CreateMovieDto,
+    @UploadedFile() poster: Express.Multer.File,
+  ): Promise<Movie> {
     const slug = this.moviesService.createSlug(createMovieDto.originalTitle);
     return this.moviesService.create({
       slug,
+      posterUrl: `/uploads/posters/${poster.filename}`,
       ...createMovieDto,
     });
   }

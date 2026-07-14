@@ -27,7 +27,7 @@ CREATE TABLE "Movie" (
     "status" VARCHAR(50) NOT NULL,
     "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "duration" INTEGER NOT NULL,
-    "poster_url" VARCHAR(256),
+    "poster_url" VARCHAR(256) NOT NULL,
     "classification" "Classification" NOT NULL,
     "gender" TEXT[],
     "synopsis" VARCHAR(4000) NOT NULL,
