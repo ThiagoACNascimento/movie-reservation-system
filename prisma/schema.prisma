@@ -52,7 +52,7 @@ model Movie {
   score Float @default(0)
   duration Int @db.Integer
   // enable null for now
-  poster_url String? @db.VarChar(256)
+  posterUrl String @db.VarChar(256) @map("poster_url")
   // Will classification be a new model?
   // Be int or enum?? "L, 10, 12..." or "0 (L), 10, 12..."
   classification Classification
