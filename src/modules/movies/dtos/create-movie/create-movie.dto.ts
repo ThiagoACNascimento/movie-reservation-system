@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsDate,
@@ -51,8 +51,9 @@ export class CreateMovieDto {
   releaseDate!: Date;
 
   @IsNumber()
-  @Max(10)
+  @Type(() => Number)
   @Min(0)
+  @Max(10)
   @ApiProperty({
     description: 'The Movie Score',
     example: 5,
@@ -60,6 +61,7 @@ export class CreateMovieDto {
   score!: number;
 
   @IsInt()
+  @Type(() => Number)
   @ApiProperty({
     description: 'The Movie Duration',
     example: 1000 * 60 * 60 * 2,
@@ -69,14 +71,20 @@ export class CreateMovieDto {
   @IsEnum(Classification)
   @ApiProperty({
     description: 'The Movie Classification',
+    enum: Classification,
     example: Classification.L,
   })
   classification!: Classification;
 
   @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) =>
+    Array.isArray(value as string) ? (value as string) : ([value] as string[]),
+  )
   @ApiProperty({
     description: 'The Movie Gender',
-    example: 'Action',
+    type: [String],
+    example: ['Action'],
   })
   gender!: string[];
 
