@@ -20,10 +20,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'node:path';
-import { randomUUID } from 'node:crypto';
 import { UploadMoviePosterDto } from './dtos/upload-movie/upload-movie-poster.dto';
+import { posterUploadOptions } from './config/multer.config';
 
 @Controller('movies')
 export class MoviesController {
@@ -34,30 +32,7 @@ export class MoviesController {
   @HttpCode(HttpStatus.CREATED)
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UploadMoviePosterDto })
-  @UseInterceptors(
-    FileInterceptor('poster', {
-      storage: diskStorage({
-        destination: './uploads/posters',
-        filename: (res, file, callback) => {
-          const extName = extname(file.originalname);
-          const filename = `${randomUUID()}${extName}`;
-          callback(null, filename);
-        },
-      }),
-      fileFilter: (req, file, callback) => {
-        if (!file.mimetype.match(/^image\/(jpeg|png|webp)$/)) {
-          return callback(
-            new BadRequestException('Only image files are allowed'),
-            false,
-          );
-        }
-        callback(null, true);
-      },
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('poster', posterUploadOptions))
   async create(
     @Body() createMovieDto: CreateMovieDto,
     @UploadedFile() poster: Express.Multer.File,
