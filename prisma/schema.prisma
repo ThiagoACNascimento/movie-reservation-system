@@ -57,9 +57,15 @@ model Movie {
   // Be int or enum?? "L, 10, 12..." or "0 (L), 10, 12..."
   classification Classification
   // Will gender be a new model?
-  gender String[]
+  gender Gender[]
   synopsis String @db.VarChar(4000)
   createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
   updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
   //...add new columns later
+}
+
+model Gender {
+  id String @id @default(uuid())
+  name String @db.VarChar(50) @unique()
+  movie Movie[]
 }
