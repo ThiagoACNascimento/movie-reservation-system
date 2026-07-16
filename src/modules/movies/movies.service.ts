@@ -8,6 +8,7 @@ import { Movie, Prisma } from '../../generated/prisma/client';
 import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class MoviesService {
@@ -66,7 +67,7 @@ export class MoviesService {
     return movie;
   }
 
-  async getMany(pagination: PaginationDto) {
+  async getMany(pagination: PaginationDto): Promise<PaginationResult<Movie>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 

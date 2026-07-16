@@ -24,6 +24,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadMoviePosterDto } from './dtos/upload-movie/upload-movie-poster.dto';
 import { posterUploadOptions } from './config/multer.config';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Controller('movies')
 export class MoviesController {
@@ -53,7 +54,9 @@ export class MoviesController {
   @Get()
   @Public()
   @HttpCode(HttpStatus.OK)
-  getMany(@Query() pagination: PaginationDto) {
+  getMany(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginationResult<Movie>> {
     return this.moviesService.getMany(pagination);
   }
 
