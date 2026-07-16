@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { Movie, Prisma } from '../../generated/prisma/client';
-// import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 
 @Injectable()
@@ -69,22 +69,43 @@ export class MoviesService {
     return this.prismaService.movie.findMany();
   }
 
-  // async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
-  //   const movieExists = await this.prismaService.movie.findUnique({
-  //     where: { id },
-  //   });
+  async update(id: string, updateMovieDto: UpdateMovieDto): Promise<Movie> {
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { id },
+    });
 
-  //   if (!movieExists) {
-  //     throw new NotFoundException('Movie not found!');
-  //   }
+    if (!movieExists) {
+      throw new NotFoundException('Movie not found!');
+    }
 
-  //   return this.prismaService.movie.update({
-  //     where: { id },
-  //     data: updateDto.originalTitle
-  //       ? { slug: this.createSlug(updateDto.originalTitle), ...updateDto }
-  //       : updateDto,
-  //   });
-  // }
+    const { gender, ...rest } = updateMovieDto;
+
+    try {
+      return this.prismaService.movie.update({
+        where: { id },
+        data: {
+          ...rest,
+          ...(rest.originalTitle && {
+            slug: this.createSlug(rest.originalTitle),
+          }),
+          ...(gender && {
+            gender: {
+              set: gender.map((name) => ({ name })),
+            },
+          }),
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException('This informed gender does not exist!');
+      }
+
+      throw error;
+    }
+  }
 
   async remove(id: string): Promise<void> {
     const movieExists = await this.prismaService.movie.findUnique({
