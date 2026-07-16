@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  // BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -23,6 +23,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadMoviePosterDto } from './dtos/upload-movie/upload-movie-poster.dto';
 import { posterUploadOptions } from './config/multer.config';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -52,8 +53,8 @@ export class MoviesController {
   @Get()
   @Public()
   @HttpCode(HttpStatus.OK)
-  getMany(): Promise<Movie[]> {
-    return this.moviesService.getMany();
+  getMany(@Query() pagination: PaginationDto) {
+    return this.moviesService.getMany(pagination);
   }
 
   @Patch(':id')
