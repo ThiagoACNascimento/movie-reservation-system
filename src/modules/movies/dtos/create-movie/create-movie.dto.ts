@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
   IsArray,
   IsDate,
   IsEnum,
@@ -77,9 +78,9 @@ export class CreateMovieDto {
   classification!: Classification;
 
   @IsArray()
-  @IsString({ each: true })
+  @ArrayNotEmpty()
   @Transform(({ value }) =>
-    Array.isArray(value as string) ? (value as string) : ([value] as string[]),
+    Array.isArray(value) ? (value as string[]) : [value as string],
   )
   @ApiProperty({
     description: 'The Movie Gender',
