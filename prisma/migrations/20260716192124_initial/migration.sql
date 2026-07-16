@@ -5,7 +5,7 @@ CREATE TYPE "Role" AS ENUM ('admin', 'default');
 CREATE TYPE "Classification" AS ENUM ('L', '6', '10', '12', '14', '16', '18');
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "user" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(256) NOT NULL,
     "email" VARCHAR(256) NOT NULL,
@@ -14,11 +14,11 @@ CREATE TABLE "User" (
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Movie" (
+CREATE TABLE "movie" (
     "id" TEXT NOT NULL,
     "title" VARCHAR(256) NOT NULL,
     "original_title" VARCHAR(256) NOT NULL,
@@ -33,15 +33,15 @@ CREATE TABLE "Movie" (
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "Movie_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "movie_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Gender" (
+CREATE TABLE "gender" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(50) NOT NULL,
 
-    CONSTRAINT "Gender_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "gender_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -53,19 +53,19 @@ CREATE TABLE "_GenderToMovie" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Movie_slug_key" ON "Movie"("slug");
+CREATE UNIQUE INDEX "movie_slug_key" ON "movie"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Gender_name_key" ON "Gender"("name");
+CREATE UNIQUE INDEX "gender_name_key" ON "gender"("name");
 
 -- CreateIndex
 CREATE INDEX "_GenderToMovie_B_index" ON "_GenderToMovie"("B");
 
 -- AddForeignKey
-ALTER TABLE "_GenderToMovie" ADD CONSTRAINT "_GenderToMovie_A_fkey" FOREIGN KEY ("A") REFERENCES "Gender"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_GenderToMovie" ADD CONSTRAINT "_GenderToMovie_A_fkey" FOREIGN KEY ("A") REFERENCES "gender"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_GenderToMovie" ADD CONSTRAINT "_GenderToMovie_B_fkey" FOREIGN KEY ("B") REFERENCES "Movie"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_GenderToMovie" ADD CONSTRAINT "_GenderToMovie_B_fkey" FOREIGN KEY ("B") REFERENCES "movie"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -4,9 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
-import { Movie } from '../../generated/prisma/client';
-// import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+import { Movie, Prisma } from '../../generated/prisma/client';
+import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class MoviesService {
@@ -27,24 +29,35 @@ export class MoviesService {
       throw new BadRequestException('The movie aready exists!');
     }
 
-    return this.prismaService.movie.create({
-      data: {
-        ...rest,
-        slug,
-        posterUrl: `/uploads/posters/${posterFileName}`,
-        gender: {
-          connectOrCreate: gender.map((name) => ({
-            where: { name },
-            create: { name },
-          })),
+    try {
+      return await this.prismaService.movie.create({
+        data: {
+          ...rest,
+          slug,
+          posterUrl: `/uploads/posters/${posterFileName}`,
+          gender: {
+            connect: gender.map((name) => ({ name })),
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException(
+          'This gender does not exist, try create it first!',
+        );
+      }
+
+      throw error;
+    }
   }
 
   async getBySlug(slug: string): Promise<Movie> {
     const movie = await this.prismaService.movie.findUnique({
       where: { slug },
+      include: { gender: true },
     });
 
     if (!movie) {
@@ -54,26 +67,71 @@ export class MoviesService {
     return movie;
   }
 
-  async getMany(): Promise<Movie[]> {
-    return this.prismaService.movie.findMany();
+  async getMany(pagination: PaginationDto): Promise<PaginationResult<Movie>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.movie.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prismaService.movie.count(),
+    ]);
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        lastPage,
+        prev: page > 1 ? page - 1 : null,
+        next: page < lastPage ? page + 1 : null,
+      },
+    };
   }
 
-  // async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
-  //   const movieExists = await this.prismaService.movie.findUnique({
-  //     where: { id },
-  //   });
+  async update(id: string, updateMovieDto: UpdateMovieDto): Promise<Movie> {
+    const movieExists = await this.prismaService.movie.findUnique({
+      where: { id },
+    });
 
-  //   if (!movieExists) {
-  //     throw new NotFoundException('Movie not found!');
-  //   }
+    if (!movieExists) {
+      throw new NotFoundException('Movie not found!');
+    }
 
-  //   return this.prismaService.movie.update({
-  //     where: { id },
-  //     data: updateDto.originalTitle
-  //       ? { slug: this.createSlug(updateDto.originalTitle), ...updateDto }
-  //       : updateDto,
-  //   });
-  // }
+    const { gender, ...rest } = updateMovieDto;
+
+    try {
+      return this.prismaService.movie.update({
+        where: { id },
+        data: {
+          ...rest,
+          ...(rest.originalTitle && {
+            slug: this.createSlug(rest.originalTitle),
+          }),
+          ...(gender && {
+            gender: {
+              set: gender.map((name) => ({ name })),
+            },
+          }),
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException('This informed gender does not exist!');
+      }
+
+      throw error;
+    }
+  }
 
   async remove(id: string): Promise<void> {
     const movieExists = await this.prismaService.movie.findUnique({

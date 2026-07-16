@@ -1,5 +1,5 @@
 import {
-  // BadRequestException,
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,8 +7,9 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  // Patch,
+  Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,11 +18,13 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { Movie } from '../../generated/prisma/client';
 import { Roles } from '../auth/decorators/roles.decorator';
-// import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadMoviePosterDto } from './dtos/upload-movie/upload-movie-poster.dto';
 import { posterUploadOptions } from './config/multer.config';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Controller('movies')
 export class MoviesController {
@@ -51,24 +54,26 @@ export class MoviesController {
   @Get()
   @Public()
   @HttpCode(HttpStatus.OK)
-  getMany(): Promise<Movie[]> {
-    return this.moviesService.getMany();
+  getMany(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginationResult<Movie>> {
+    return this.moviesService.getMany(pagination);
   }
 
-  // @Patch(':id')
-  // @Roles('admin')
-  // @HttpCode(HttpStatus.OK)
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateDto: UpdateMovieDto,
-  // ): Promise<Movie> {
-  //   if (Object.keys(updateDto).length === 0) {
-  //     throw new BadRequestException(
-  //       'You need to include at least one property! ',
-  //     );
-  //   }
-  //   return this.moviesService.update(id, updateDto);
-  // }
+  @Patch(':id')
+  @Roles('admin')
+  @HttpCode(HttpStatus.OK)
+  update(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateMovieDto,
+  ): Promise<Movie> {
+    if (Object.keys(updateDto).length === 0) {
+      throw new BadRequestException(
+        'You need to include at least one property! ',
+      );
+    }
+    return this.moviesService.update(id, updateDto);
+  }
 
   @Delete(':id')
   @Roles('admin')
