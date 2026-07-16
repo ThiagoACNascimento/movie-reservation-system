@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
-import { Prisma } from '../../generated/prisma/client';
+import { Gender, Prisma } from '../../generated/prisma/client';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class GendersService {
@@ -11,7 +12,7 @@ export class GendersService {
     return this.prismaService.gender.create({ data });
   }
 
-  async getMany(pagination: PaginationDto) {
+  async getMany(pagination: PaginationDto): Promise<PaginationResult<Gender>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
