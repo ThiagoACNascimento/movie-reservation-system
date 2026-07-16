@@ -55,6 +55,7 @@ export class MoviesService {
   async getBySlug(slug: string): Promise<Movie> {
     const movie = await this.prismaService.movie.findUnique({
       where: { slug },
+      include: { gender: true },
     });
 
     if (!movie) {
