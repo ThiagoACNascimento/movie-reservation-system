@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
-import { Movie } from '../../generated/prisma/client';
+import { Movie, Prisma } from '../../generated/prisma/client';
 // import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 
@@ -27,19 +27,29 @@ export class MoviesService {
       throw new BadRequestException('The movie aready exists!');
     }
 
-    return this.prismaService.movie.create({
-      data: {
-        ...rest,
-        slug,
-        posterUrl: `/uploads/posters/${posterFileName}`,
-        gender: {
-          connectOrCreate: gender.map((name) => ({
-            where: { name },
-            create: { name },
-          })),
+    try {
+      return await this.prismaService.movie.create({
+        data: {
+          ...rest,
+          slug,
+          posterUrl: `/uploads/posters/${posterFileName}`,
+          gender: {
+            connect: gender.map((name) => ({ name })),
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException(
+          'This gender does not exist, try create it first!',
+        );
+      }
+
+      throw error;
+    }
   }
 
   async getBySlug(slug: string): Promise<Movie> {
