@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { GendersService } from './genders.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateGenderDto } from './dtos/create-gender/create-gender.dto';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
 
 @Controller('genders')
 export class GendersController {
@@ -14,7 +15,7 @@ export class GendersController {
   }
 
   @Get()
-  getAll() {
-    return this.gendersService.findAll();
+  getMany(@Query() pagination: PaginationDto) {
+    return this.gendersService.getMany(pagination);
   }
 }

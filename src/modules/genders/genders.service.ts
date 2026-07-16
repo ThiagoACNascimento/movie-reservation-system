@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { Prisma } from '../../generated/prisma/client';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
 
 @Injectable()
 export class GendersService {
@@ -10,7 +11,31 @@ export class GendersService {
     return this.prismaService.gender.create({ data });
   }
 
-  findAll() {
-    return this.prismaService.gender.findMany();
+  async getMany(pagination: PaginationDto) {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.gender.findMany({
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' },
+      }),
+      this.prismaService.gender.count(),
+    ]);
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        lastPage,
+        prev: page > 1 ? page - 1 : null,
+        next: page < 1 ? page + 1 : null,
+      },
+    };
   }
 }
