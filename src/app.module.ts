@@ -6,6 +6,7 @@ import { UsersModule } from './modules/users/users.module';
 import { CryptModule } from './infra/crypt/Crypt.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MoviesModule } from './modules/movies/movies.module';
+import { GendersModule } from './modules/genders/genders.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MoviesModule } from './modules/movies/movies.module';
     CryptModule,
     AuthModule,
     MoviesModule,
+    GendersModule,
   ],
 })
 export class AppModule {}
