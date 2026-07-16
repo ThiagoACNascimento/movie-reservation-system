@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  // BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,7 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
+  // Patch,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -17,7 +17,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { Movie } from '../../generated/prisma/client';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+// import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadMoviePosterDto } from './dtos/upload-movie/upload-movie-poster.dto';
@@ -33,16 +33,12 @@ export class MoviesController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UploadMoviePosterDto })
   @UseInterceptors(FileInterceptor('poster', posterUploadOptions))
-  async create(
+  create(
     @Body() createMovieDto: CreateMovieDto,
     @UploadedFile() poster: Express.Multer.File,
   ): Promise<Movie> {
-    const slug = this.moviesService.createSlug(createMovieDto.originalTitle);
-    return this.moviesService.create({
-      slug,
-      posterUrl: `/uploads/posters/${poster.filename}`,
-      ...createMovieDto,
-    });
+    const posterFileName = poster.filename;
+    return this.moviesService.create(createMovieDto, posterFileName);
   }
 
   @Get(':slug')
@@ -59,20 +55,20 @@ export class MoviesController {
     return this.moviesService.getMany();
   }
 
-  @Patch(':id')
-  @Roles('admin')
-  @HttpCode(HttpStatus.OK)
-  update(
-    @Param('id') id: string,
-    @Body() updateDto: UpdateMovieDto,
-  ): Promise<Movie> {
-    if (Object.keys(updateDto).length === 0) {
-      throw new BadRequestException(
-        'You need to include at least one property! ',
-      );
-    }
-    return this.moviesService.update(id, updateDto);
-  }
+  // @Patch(':id')
+  // @Roles('admin')
+  // @HttpCode(HttpStatus.OK)
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateDto: UpdateMovieDto,
+  // ): Promise<Movie> {
+  //   if (Object.keys(updateDto).length === 0) {
+  //     throw new BadRequestException(
+  //       'You need to include at least one property! ',
+  //     );
+  //   }
+  //   return this.moviesService.update(id, updateDto);
+  // }
 
   @Delete(':id')
   @Roles('admin')

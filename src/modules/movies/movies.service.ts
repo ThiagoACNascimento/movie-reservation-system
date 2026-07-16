@@ -4,23 +4,42 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
-import { Movie, Prisma } from '../../generated/prisma/client';
-import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+import { Movie } from '../../generated/prisma/client';
+// import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
+import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 
 @Injectable()
 export class MoviesService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(data: Prisma.MovieCreateInput): Promise<Movie> {
+  async create(
+    createMovieDto: CreateMovieDto,
+    posterFileName: string,
+  ): Promise<Movie> {
+    const { gender, ...rest } = createMovieDto;
+    const slug = this.createSlug(createMovieDto.originalTitle);
+
     const movieExists = await this.prismaService.movie.findUnique({
-      where: { slug: data.slug },
+      where: { slug },
     });
 
     if (movieExists) {
       throw new BadRequestException('The movie aready exists!');
     }
 
-    return this.prismaService.movie.create({ data });
+    return this.prismaService.movie.create({
+      data: {
+        ...rest,
+        slug,
+        posterUrl: `/uploads/posters/${posterFileName}`,
+        gender: {
+          connectOrCreate: gender.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+      },
+    });
   }
 
   async getBySlug(slug: string): Promise<Movie> {
@@ -39,22 +58,22 @@ export class MoviesService {
     return this.prismaService.movie.findMany();
   }
 
-  async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
-    const movieExists = await this.prismaService.movie.findUnique({
-      where: { id },
-    });
+  // async update(id: string, updateDto: UpdateMovieDto): Promise<Movie> {
+  //   const movieExists = await this.prismaService.movie.findUnique({
+  //     where: { id },
+  //   });
 
-    if (!movieExists) {
-      throw new NotFoundException('Movie not found!');
-    }
+  //   if (!movieExists) {
+  //     throw new NotFoundException('Movie not found!');
+  //   }
 
-    return this.prismaService.movie.update({
-      where: { id },
-      data: updateDto.originalTitle
-        ? { slug: this.createSlug(updateDto.originalTitle), ...updateDto }
-        : updateDto,
-    });
-  }
+  //   return this.prismaService.movie.update({
+  //     where: { id },
+  //     data: updateDto.originalTitle
+  //       ? { slug: this.createSlug(updateDto.originalTitle), ...updateDto }
+  //       : updateDto,
+  //   });
+  // }
 
   async remove(id: string): Promise<void> {
     const movieExists = await this.prismaService.movie.findUnique({
