@@ -10,6 +10,12 @@ generator client {
   importFileExtension = ""
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output = "./ERD.md"
+  ignoreEnums = true
+}
+
 datasource db {
   provider = "postgresql"
 }
@@ -19,14 +25,10 @@ enum Role {
   default
 }
 
-enum Classification {
-  L
-  six      @map("6")
-  ten      @map("10")
-  twoelve  @map("12")
-  fourteen @map("14")
-  sixteen  @map("16")
-  eighteen @map("18")
+enum MovieStatus {
+  upcoming
+  showing
+  archived
 }
 
 model User {
@@ -49,28 +51,54 @@ model Movie {
   originalTitle String @db.VarChar(256) @map("original_title")
   slug String @db.VarChar(256) @unique
   releaseDate DateTime @db.Timestamptz() @map("release_date")
-  // add enum status values
-  status String @db.VarChar(50)
+  status MovieStatus @default(upcoming)
   score Float @default(0)
   duration Int @db.Integer
-  // enable null for now
   posterUrl String @db.VarChar(256) @map("poster_url")
-  // Will classification be a new model?
-  // Be int or enum?? "L, 10, 12..." or "0 (L), 10, 12..."
-  classification Classification
-  gender Gender[]
+  minAge Int @default(0) @map("min_age")
+  genres Genre[]
   synopsis String @db.VarChar(4000)
   createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
   updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
   //...add new columns later
 
+  showTimes ShowTime[]
+
   @@map("movie")
 }
 
-model Gender {
+model Genre {
   id String @id @default(uuid())
   name String @db.VarChar(50) @unique()
-  movie Movie[]
+  movies Movie[]
 
-  @@map("gender")
+  @@map("genre")
+}
+
+model Room {
+  id String @id @default(uuid())
+  name String @db.VarChar(50) @unique()
+  capacity Int
+  showTimes ShowTime[]
+
+  @@map("room")
+}
+
+model ShowTime {
+  id String @id @default(uuid())
+  startAt DateTime @db.Timestamptz() @map("start_at")
+  price Decimal @db.Decimal(10, 2)
+
+  movie Movie @relation(fields: [movieId], references: [id])
+  movieId String @map("movie_id")
+
+  room Room @relation(fields: [roomId], references: [id])
+  roomId String @map("room_id")
+
+  @@index([roomId])
+  @@index([movieId, startAt])
+
+  @@unique([roomId, startAt])
+
+  @@map("show_time")
 }
