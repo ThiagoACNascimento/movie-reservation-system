@@ -87,6 +87,7 @@ export class CreateMovieDto {
     type: [String],
     example: ['Action'],
   })
+  @IsString({ each: true })
   gender!: string[];
 
   @IsString()
