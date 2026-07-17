@@ -7,7 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:prettier:write": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:prettier:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:eslint:check": "eslint \"src/**/*.ts\" \"test/**/*.ts\" --max-warnings 0",
     "start": "nest start",
     "start:dev": "npm run services:up && npm run migrations:up && NODE_ENV=development nest start --watch",
     "start:debug": "nest start --debug --watch",
