@@ -48,6 +48,7 @@ CREATE TABLE "genre" (
 CREATE TABLE "room" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(50) NOT NULL,
+    "slug" VARCHAR(256) NOT NULL,
     "capacity" INTEGER NOT NULL,
 
     CONSTRAINT "room_pkey" PRIMARY KEY ("id")
@@ -83,6 +84,9 @@ CREATE UNIQUE INDEX "genre_name_key" ON "genre"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "room_name_key" ON "room"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "room_slug_key" ON "room"("slug");
 
 -- CreateIndex
 CREATE INDEX "movie_session_room_id_idx" ON "movie_session"("room_id");

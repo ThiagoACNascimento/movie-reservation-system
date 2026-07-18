@@ -38,11 +38,12 @@ erDiagram
   "room" {
     String id "🗝️"
     String name 
+    String slug 
     Int capacity 
     }
   
 
-  "show_time" {
+  "movie_session" {
     String id "🗝️"
     DateTime start_at 
     Decimal price 
@@ -51,6 +52,6 @@ erDiagram
     }
   
     "movie" o{--}o "genre" : ""
-    "show_time" }o--|| movie : "movie"
-    "show_time" }o--|| room : "room"
+    "movie_session" }o--|| movie : "movie"
+    "movie_session" }o--|| room : "room"
 ```

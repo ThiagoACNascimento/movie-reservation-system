@@ -9,6 +9,7 @@ import { UpdateMovieDto } from './dtos/update-movie/update-movie.dto';
 import { CreateMovieDto } from './dtos/create-movie/create-movie.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
+import { createSlug } from '../../common/utils/create-slug.utils';
 
 @Injectable()
 export class MoviesService {
@@ -19,7 +20,7 @@ export class MoviesService {
     posterFileName: string,
   ): Promise<Movie> {
     const { genres, ...rest } = createMovieDto;
-    const slug = this.createSlug(createMovieDto.originalTitle);
+    const slug = createSlug(createMovieDto.originalTitle);
 
     const movieExists = await this.prismaService.movie.findUnique({
       where: { slug },
@@ -112,7 +113,7 @@ export class MoviesService {
         data: {
           ...rest,
           ...(rest.originalTitle && {
-            slug: this.createSlug(rest.originalTitle),
+            slug: createSlug(rest.originalTitle),
           }),
           ...(genres && {
             genres: {
@@ -143,16 +144,5 @@ export class MoviesService {
     }
 
     await this.prismaService.movie.delete({ where: { id } });
-  }
-
-  createSlug(originalTitle: string): string {
-    return originalTitle
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
   }
 }
