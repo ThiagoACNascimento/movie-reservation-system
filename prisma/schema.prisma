@@ -62,7 +62,7 @@ model Movie {
   updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
   //...add new columns later
 
-  showTimes ShowTime[]
+  movieSessions MovieSession[]
 
   @@map("movie")
 }
@@ -79,12 +79,12 @@ model Room {
   id String @id @default(uuid())
   name String @db.VarChar(50) @unique()
   capacity Int
-  showTimes ShowTime[]
+  movieSessions MovieSession[]
 
   @@map("room")
 }
 
-model ShowTime {
+model MovieSession {
   id String @id @default(uuid())
   startAt DateTime @db.Timestamptz() @map("start_at")
   price Decimal @db.Decimal(10, 2)
@@ -100,5 +100,5 @@ model ShowTime {
 
   @@unique([roomId, startAt])
 
-  @@map("show_time")
+  @@map("movie_session")
 }

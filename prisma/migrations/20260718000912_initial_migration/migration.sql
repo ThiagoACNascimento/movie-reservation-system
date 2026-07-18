@@ -54,14 +54,14 @@ CREATE TABLE "room" (
 );
 
 -- CreateTable
-CREATE TABLE "show_time" (
+CREATE TABLE "movie_session" (
     "id" TEXT NOT NULL,
     "start_at" TIMESTAMPTZ NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
     "movie_id" TEXT NOT NULL,
     "room_id" TEXT NOT NULL,
 
-    CONSTRAINT "show_time_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "movie_session_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -85,22 +85,22 @@ CREATE UNIQUE INDEX "genre_name_key" ON "genre"("name");
 CREATE UNIQUE INDEX "room_name_key" ON "room"("name");
 
 -- CreateIndex
-CREATE INDEX "show_time_room_id_idx" ON "show_time"("room_id");
+CREATE INDEX "movie_session_room_id_idx" ON "movie_session"("room_id");
 
 -- CreateIndex
-CREATE INDEX "show_time_movie_id_start_at_idx" ON "show_time"("movie_id", "start_at");
+CREATE INDEX "movie_session_movie_id_start_at_idx" ON "movie_session"("movie_id", "start_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "show_time_room_id_start_at_key" ON "show_time"("room_id", "start_at");
+CREATE UNIQUE INDEX "movie_session_room_id_start_at_key" ON "movie_session"("room_id", "start_at");
 
 -- CreateIndex
 CREATE INDEX "_GenreToMovie_B_index" ON "_GenreToMovie"("B");
 
 -- AddForeignKey
-ALTER TABLE "show_time" ADD CONSTRAINT "show_time_movie_id_fkey" FOREIGN KEY ("movie_id") REFERENCES "movie"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "movie_session" ADD CONSTRAINT "movie_session_movie_id_fkey" FOREIGN KEY ("movie_id") REFERENCES "movie"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "show_time" ADD CONSTRAINT "show_time_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "movie_session" ADD CONSTRAINT "movie_session_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_GenreToMovie" ADD CONSTRAINT "_GenreToMovie_A_fkey" FOREIGN KEY ("A") REFERENCES "genre"("id") ON DELETE CASCADE ON UPDATE CASCADE;
