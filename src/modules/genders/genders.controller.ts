@@ -4,7 +4,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateGenderDto } from './dtos/create-gender/create-gender.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
-import { Gender } from '../../generated/prisma/client';
+import { Genre } from '../../generated/prisma/client';
 
 @Controller('genders')
 export class GendersController {
@@ -19,7 +19,7 @@ export class GendersController {
   @Get()
   getMany(
     @Query() pagination: PaginationDto,
-  ): Promise<PaginationResult<Gender>> {
+  ): Promise<PaginationResult<Genre>> {
     return this.gendersService.getMany(pagination);
   }
 }

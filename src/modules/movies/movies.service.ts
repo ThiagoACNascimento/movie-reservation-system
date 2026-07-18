@@ -18,7 +18,7 @@ export class MoviesService {
     createMovieDto: CreateMovieDto,
     posterFileName: string,
   ): Promise<Movie> {
-    const { gender, ...rest } = createMovieDto;
+    const { genres, ...rest } = createMovieDto;
     const slug = this.createSlug(createMovieDto.originalTitle);
 
     const movieExists = await this.prismaService.movie.findUnique({
@@ -35,8 +35,8 @@ export class MoviesService {
           ...rest,
           slug,
           posterUrl: `/uploads/posters/${posterFileName}`,
-          gender: {
-            connect: gender.map((name) => ({ name })),
+          genres: {
+            connect: genres.map((name) => ({ name })),
           },
         },
       });
@@ -46,7 +46,7 @@ export class MoviesService {
         error.code === 'P2025'
       ) {
         throw new BadRequestException(
-          'This gender does not exist, try create it first!',
+          'This genre does not exist, try create it first!',
         );
       }
 
@@ -57,7 +57,7 @@ export class MoviesService {
   async getBySlug(slug: string): Promise<Movie> {
     const movie = await this.prismaService.movie.findUnique({
       where: { slug },
-      include: { gender: true },
+      include: { genres: true },
     });
 
     if (!movie) {
@@ -104,7 +104,7 @@ export class MoviesService {
       throw new NotFoundException('Movie not found!');
     }
 
-    const { gender, ...rest } = updateMovieDto;
+    const { genres, ...rest } = updateMovieDto;
 
     try {
       return this.prismaService.movie.update({
@@ -114,9 +114,9 @@ export class MoviesService {
           ...(rest.originalTitle && {
             slug: this.createSlug(rest.originalTitle),
           }),
-          ...(gender && {
-            gender: {
-              set: gender.map((name) => ({ name })),
+          ...(genres && {
+            genres: {
+              set: genres.map((name) => ({ name })),
             },
           }),
         },
@@ -126,7 +126,7 @@ export class MoviesService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new BadRequestException('This informed gender does not exist!');
+        throw new BadRequestException('This informed genre does not exist!');
       }
 
       throw error;
