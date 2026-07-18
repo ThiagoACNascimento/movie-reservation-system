@@ -12,8 +12,8 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { Classification } from '../../../../generated/prisma/enums';
 import { ApiProperty } from '@nestjs/swagger';
+import { MovieStatus } from '../../../../generated/prisma/enums';
 
 export class CreateMovieDto {
   @IsString()
@@ -34,14 +34,14 @@ export class CreateMovieDto {
   })
   originalTitle!: string;
 
-  @IsString()
-  @MinLength(5)
-  @MaxLength(50)
+  @IsEnum(MovieStatus)
   @ApiProperty({
     description: 'The Movie Status',
-    example: 'Published',
+    enum: MovieStatus,
+    example: MovieStatus.showing,
+    required: false,
   })
-  status!: string;
+  status?: MovieStatus;
 
   @IsDate()
   @Type(() => Date)
@@ -69,13 +69,15 @@ export class CreateMovieDto {
   })
   duration!: number;
 
-  @IsEnum(Classification)
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  @Max(18)
   @ApiProperty({
     description: 'The Movie Classification',
-    enum: Classification,
-    example: Classification.L,
+    example: 10,
   })
-  classification!: Classification;
+  minAge!: number;
 
   @IsArray()
   @ArrayNotEmpty()
@@ -88,7 +90,7 @@ export class CreateMovieDto {
     example: ['Action'],
   })
   @IsString({ each: true })
-  gender!: string[];
+  genres!: string[];
 
   @IsString()
   @MinLength(10)
