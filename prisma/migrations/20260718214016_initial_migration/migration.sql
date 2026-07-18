@@ -4,6 +4,9 @@ CREATE TYPE "Role" AS ENUM ('admin', 'default');
 -- CreateEnum
 CREATE TYPE "MovieStatus" AS ENUM ('upcoming', 'showing', 'archived');
 
+-- CreateEnum
+CREATE TYPE "MovieSessionStatus" AS ENUM ('scheduled', 'completed', 'displaying');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -59,6 +62,7 @@ CREATE TABLE "movie_session" (
     "id" TEXT NOT NULL,
     "start_at" TIMESTAMPTZ NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
+    "status" "MovieSessionStatus" NOT NULL DEFAULT 'scheduled',
     "movie_id" TEXT NOT NULL,
     "room_id" TEXT NOT NULL,
 
@@ -96,6 +100,9 @@ CREATE INDEX "movie_session_movie_id_start_at_idx" ON "movie_session"("movie_id"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "movie_session_room_id_start_at_key" ON "movie_session"("room_id", "start_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "movie_session_movie_id_start_at_key" ON "movie_session"("movie_id", "start_at");
 
 -- CreateIndex
 CREATE INDEX "_GenreToMovie_B_index" ON "_GenreToMovie"("B");

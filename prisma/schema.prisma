@@ -31,6 +31,12 @@ enum MovieStatus {
   archived
 }
 
+enum MovieSessionStatus {
+  scheduled
+  completed
+  displaying
+}
+
 model User {
   id String @id @default(uuid())
   name String @db.VarChar(256)
@@ -89,6 +95,7 @@ model MovieSession {
   id String @id @default(uuid())
   startAt DateTime @db.Timestamptz() @map("start_at")
   price Decimal @db.Decimal(10, 2)
+  status MovieSessionStatus @default(scheduled)
 
   movie Movie @relation(fields: [movieId], references: [id])
   movieId String @map("movie_id")
@@ -100,6 +107,7 @@ model MovieSession {
   @@index([movieId, startAt])
 
   @@unique([roomId, startAt])
+  @@unique([movieId, startAt])
 
   @@map("movie_session")
 }

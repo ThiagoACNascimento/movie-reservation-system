@@ -47,6 +47,7 @@ erDiagram
     String id "🗝️"
     DateTime start_at 
     Decimal price 
+    MovieSessionStatus status 
     String movie_id 
     String room_id 
     }
