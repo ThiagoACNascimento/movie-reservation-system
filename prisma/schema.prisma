@@ -78,6 +78,7 @@ model Genre {
 model Room {
   id String @id @default(uuid())
   name String @db.VarChar(50) @unique()
+  slug String @db.VarChar(256) @unique
   capacity Int
   movieSessions MovieSession[]
 
