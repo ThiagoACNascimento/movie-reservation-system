@@ -10,13 +10,13 @@ import {
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto.ts/create-room.dto';
-import { Public } from '../../common/decorators/public.decorator';
 import { Room } from '../../generated/prisma/client';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
+import { Roles } from '../auth/decorators/roles.decorator';
 
-@Public()
 @Controller('rooms')
+@Roles('admin')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
