@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { CreateMovieSessionDto } from './dtos/create-movie-session.dto/create-movie-session.dto';
 
@@ -47,5 +51,17 @@ export class MovieSessionsService {
         roomId: createMovieSessionDto.roomId,
       },
     });
+  }
+
+  async findOneById(id: string) {
+    const movieSession = await this.prismaService.movieSession.findUnique({
+      where: { id },
+    });
+
+    if (!movieSession) {
+      throw new NotFoundException('Session not found!');
+    }
+
+    return movieSession;
   }
 }
