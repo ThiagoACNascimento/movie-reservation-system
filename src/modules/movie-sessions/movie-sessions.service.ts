@@ -64,4 +64,14 @@ export class MovieSessionsService {
 
     return movieSession;
   }
+
+  async completeSession(id: string): Promise<void> {
+    const movieSession = await this.findOneById(id);
+    movieSession.status = 'completed';
+
+    await this.prismaService.movieSession.update({
+      where: { id: movieSession.id },
+      data: movieSession,
+    });
+  }
 }
