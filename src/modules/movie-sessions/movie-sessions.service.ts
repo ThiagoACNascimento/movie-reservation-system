@@ -6,6 +6,8 @@ import {
 import { PrismaService } from '../../infra/database/prisma.service';
 import { CreateMovieSessionDto } from './dtos/create-movie-session.dto/create-movie-session.dto';
 import { MovieSession } from '../../generated/prisma/client';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class MovieSessionsService {
@@ -66,6 +68,38 @@ export class MovieSessionsService {
     }
 
     return movieSession;
+  }
+
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginationResult<MovieSession>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.movieSession.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          startAt: 'desc',
+        },
+      }),
+      this.prismaService.movieSession.count(),
+    ]);
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        lastPage,
+        prev: page > 1 ? page - 1 : null,
+        next: page < lastPage ? page + 1 : null,
+      },
+    };
   }
 
   async completeSession(id: string): Promise<void> {
