@@ -5,12 +5,15 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { CreateMovieSessionDto } from './dtos/create-movie-session.dto/create-movie-session.dto';
+import { MovieSession } from '../../generated/prisma/client';
 
 @Injectable()
 export class MovieSessionsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createMovieSessionDto: CreateMovieSessionDto) {
+  async create(
+    createMovieSessionDto: CreateMovieSessionDto,
+  ): Promise<MovieSession> {
     const startAt = new Date(createMovieSessionDto.startAt);
 
     const [isReservedRoom, isMoviePlaying] =
@@ -53,7 +56,7 @@ export class MovieSessionsService {
     });
   }
 
-  async findOneById(id: string) {
+  async findOneById(id: string): Promise<MovieSession> {
     const movieSession = await this.prismaService.movieSession.findUnique({
       where: { id },
     });
