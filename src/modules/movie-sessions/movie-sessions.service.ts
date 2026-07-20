@@ -111,4 +111,9 @@ export class MovieSessionsService {
       data: movieSession,
     });
   }
+
+  async remove(id: string): Promise<void> {
+    await this.findOneById(id);
+    await this.prismaService.movieSession.delete({ where: { id } });
+  }
 }
