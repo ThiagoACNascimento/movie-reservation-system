@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -42,5 +43,11 @@ export class MovieSessionsController {
   @HttpCode(HttpStatus.OK)
   completeSession(@Param('id') id: string): Promise<void> {
     return this.movieSessionsService.completeSession(id);
+  }
+
+  @Delete('id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id') id: string): Promise<void> {
+    return this.movieSessionsService.remove(id);
   }
 }
