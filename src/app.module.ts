@@ -9,6 +9,7 @@ import { MoviesModule } from './modules/movies/movies.module';
 import { GendersModule } from './modules/genders/genders.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { MovieSessionsModule } from './modules/movie-sessions/movie-sessions.module';
+import { ReservationsModule } from './modules/reservations/reservations.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MovieSessionsModule } from './modules/movie-sessions/movie-sessions.mod
     GendersModule,
     RoomsModule,
     MovieSessionsModule,
+    ReservationsModule,
   ],
 })
 export class AppModule {}
