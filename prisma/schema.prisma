@@ -111,3 +111,8 @@ model MovieSession {
 
   @@map("movie_session")
 }
+
+model Reservation {
+  id String @id @default(uuid())
+  // add more columns
+}
