@@ -37,6 +37,12 @@ enum MovieSessionStatus {
   displaying
 }
 
+enum ReservationStatus {
+  pending
+  canceled
+  accepted
+}
+
 model User {
   id String @id @default(uuid())
   name String @db.VarChar(256)
@@ -45,6 +51,7 @@ model User {
   role Role @default(default)
   createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
   updatedAt DateTime @db.Timestamptz() @updatedAt @map("updated_at")
+  reservation Reservation[]
 
   @@map("user")
 }
@@ -103,6 +110,8 @@ model MovieSession {
   room Room @relation(fields: [roomId], references: [id])
   roomId String @map("room_id")
 
+  reservation Reservation[]
+
   @@index([roomId])
   @@index([movieId, startAt])
 
@@ -114,5 +123,15 @@ model MovieSession {
 
 model Reservation {
   id String @id @default(uuid())
+  status ReservationStatus @default(pending)
+
+  movieSession MovieSession @relation(fields: [movieSessionId], references: [id])
+  movieSessionId String @map("movie_session_id")
+
+  user User @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  createdAt DateTime @db.Timestamptz() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamptz() @updatedAt() @map("updated_at")
   // add more columns
 }
