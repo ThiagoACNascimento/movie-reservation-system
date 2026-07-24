@@ -23,4 +23,10 @@ export class ReservationsController {
   findOneById(@Param('id') id: string) {
     return id;
   }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  findAll() {
+    return [];
+  }
 }
