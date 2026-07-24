@@ -1,4 +1,11 @@
-import { Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 
 @Controller('reservations')
@@ -9,5 +16,11 @@ export class ReservationsController {
   @HttpCode(HttpStatus.CREATED)
   create() {
     return [];
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findOneById(@Param('id') id: string) {
+    return id;
   }
 }
