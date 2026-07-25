@@ -5,8 +5,9 @@ import { CreateGenreDto } from './dtos/create-gender/create-genres.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 import { Genre } from '../../generated/prisma/client';
+import { Public } from '../../common/decorators/public.decorator';
 
-@Controller('genders')
+@Controller('genres')
 export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 
@@ -17,6 +18,7 @@ export class GenresController {
   }
 
   @Get()
+  @Public()
   getMany(
     @Query() pagination: PaginationDto,
   ): Promise<PaginationResult<Genre>> {
