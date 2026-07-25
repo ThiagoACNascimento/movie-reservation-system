@@ -59,6 +59,7 @@ export class Orchestrator extends PrismaClient {
 
   async createUser(
     userCreate?: UserCreateInterface,
+    returnPassword: boolean = false,
     isAdmin: boolean = false,
   ): Promise<User> {
     const password = userCreate?.password ?? faker.internet.password();
@@ -81,6 +82,10 @@ export class Orchestrator extends PrismaClient {
       });
     }
 
+    if (returnPassword) {
+      return { ...user, password };
+    }
+
     return user;
   }
 
@@ -94,6 +99,14 @@ export class Orchestrator extends PrismaClient {
       .expect(200);
 
     return result.headers['set-cookie'] as unknown as string[];
+  }
+
+  async createUserAndLogin(
+    app: INestApplication<App>,
+    isAdmin: boolean = false,
+  ) {
+    const user = await this.createUser({}, true, isAdmin);
+    return this.login(app, { email: user.email, password: user.password });
   }
 
   async createUserWithoutDatabase(userCreate?: UserCreateInterface) {
