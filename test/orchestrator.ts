@@ -2,11 +2,19 @@ import { PrismaClient, User } from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
+import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { App } from 'supertest/types';
 
 interface UserCreateInterface {
   name?: string;
   email?: string;
   password?: string;
+}
+
+interface Login {
+  email: string;
+  password: string;
 }
 
 export class Orchestrator extends PrismaClient {
@@ -70,6 +78,18 @@ export class Orchestrator extends PrismaClient {
     }
 
     return user;
+  }
+
+  async login(app: INestApplication<App>, login: Login) {
+    const result = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: login.email,
+        password: login.password,
+      })
+      .expect(200);
+
+    return result.headers['set-cookie'] as unknown as string[];
   }
 
   async createUserWithoutDatabase(userCreate?: UserCreateInterface) {
