@@ -45,17 +45,31 @@ export class Orchestrator extends PrismaClient {
     }
   }
 
-  async createUser(userCreate?: UserCreateInterface): Promise<User> {
+  async createUser(
+    userCreate?: UserCreateInterface,
+    isAdmin: boolean = false,
+  ): Promise<User> {
     const password = userCreate?.password ?? faker.internet.password();
     const hashedPassword = await bcrypt.hash(password, 1);
 
-    return this.user.create({
+    let user = await this.user.create({
       data: {
         name: userCreate?.name ?? faker.person.fullName(),
         email: userCreate?.email ?? faker.internet.email(),
         password: hashedPassword,
       },
     });
+
+    if (isAdmin) {
+      user = await this.user.update({
+        where: { id: user.id },
+        data: {
+          role: 'admin',
+        },
+      });
+    }
+
+    return user;
   }
 
   async createUserWithoutDatabase(userCreate?: UserCreateInterface) {
