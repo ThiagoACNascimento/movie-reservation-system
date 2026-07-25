@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import request from 'supertest';
 import { Orchestrator } from '../../orchestrator';
 import cookieParser from 'cookie-parser';
+import { User } from '../../../src/generated/prisma/client';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication<App>;
@@ -38,25 +39,22 @@ describe('Auth (e2e)', () => {
 
   describe('SignUp (POST)', () => {
     it('should return a new User', async () => {
-      const result = await request(app.getHttpServer())
+      const result = (await request(app.getHttpServer())
         .post('/auth/signup')
         .send({
           name: 'firstSignUpUser',
           email: 'firstSignUpUser@gmail.com',
           password: '12345678',
         })
-        .expect(201);
+        .expect(201)) as { body: User };
 
       expect(result.body).not.toHaveProperty('password');
       expect(result.body).toEqual({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         id: result.body.id,
         name: 'firstSignUpUser',
         email: 'firstSignUpUser@gmail.com',
         role: 'default',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         createdAt: result.body.createdAt,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         updatedAt: result.body.updatedAt,
       });
     });

@@ -6,7 +6,7 @@ import { UsersModule } from './modules/users/users.module';
 import { CryptModule } from './infra/crypt/Crypt.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MoviesModule } from './modules/movies/movies.module';
-import { GendersModule } from './modules/genders/genders.module';
+import { GenresModule } from './modules/genres/genres.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { MovieSessionsModule } from './modules/movie-sessions/movie-sessions.module';
 import { ReservationsModule } from './modules/reservations/reservations.module';
@@ -25,7 +25,7 @@ import { ReservationsModule } from './modules/reservations/reservations.module';
     CryptModule,
     AuthModule,
     MoviesModule,
-    GendersModule,
+    GenresModule,
     RoomsModule,
     MovieSessionsModule,
     ReservationsModule,

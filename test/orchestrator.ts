@@ -2,11 +2,23 @@ import { PrismaClient, User } from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
+import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { App } from 'supertest/types';
 
 interface UserCreateInterface {
   name?: string;
   email?: string;
   password?: string;
+}
+
+interface Login {
+  email: string;
+  password: string;
+}
+
+interface GenreInterface {
+  name: string;
 }
 
 export class Orchestrator extends PrismaClient {
@@ -45,17 +57,43 @@ export class Orchestrator extends PrismaClient {
     }
   }
 
-  async createUser(userCreate?: UserCreateInterface): Promise<User> {
+  async createUser(
+    userCreate?: UserCreateInterface,
+    isAdmin: boolean = false,
+  ): Promise<User> {
     const password = userCreate?.password ?? faker.internet.password();
     const hashedPassword = await bcrypt.hash(password, 1);
 
-    return this.user.create({
+    let user = await this.user.create({
       data: {
         name: userCreate?.name ?? faker.person.fullName(),
         email: userCreate?.email ?? faker.internet.email(),
         password: hashedPassword,
       },
     });
+
+    if (isAdmin) {
+      user = await this.user.update({
+        where: { id: user.id },
+        data: {
+          role: 'admin',
+        },
+      });
+    }
+
+    return user;
+  }
+
+  async login(app: INestApplication<App>, login: Login) {
+    const result = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: login.email,
+        password: login.password,
+      })
+      .expect(200);
+
+    return result.headers['set-cookie'] as unknown as string[];
   }
 
   async createUserWithoutDatabase(userCreate?: UserCreateInterface) {
@@ -78,6 +116,18 @@ export class Orchestrator extends PrismaClient {
     return Promise.all(
       Array.from({ length: count }, () => this.createUser(userCreate)),
     );
+  }
+
+  async createGenre(genres: GenreInterface | GenreInterface[]) {
+    const result = Array.isArray(genres)
+      ? await Promise.all(
+          genres.map((genre) =>
+            this.genre.create({ data: { name: genre.name } }),
+          ),
+        )
+      : await this.genre.create({ data: { name: genres.name } });
+
+    return result;
   }
 
   async truncateAll(): Promise<void> {

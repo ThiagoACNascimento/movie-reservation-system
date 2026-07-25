@@ -1,14 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infra/database/prisma.service';
 import { Genre, Prisma } from '../../generated/prisma/client';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Injectable()
-export class GendersService {
+export class GenresService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(data: Prisma.GenreCreateInput) {
+  async create(data: Prisma.GenreCreateInput) {
+    const genre = await this.prismaService.genre.findUnique({
+      where: { name: data.name },
+    });
+
+    if (genre) {
+      throw new BadRequestException('Genre aready exist');
+    }
+
     return this.prismaService.genre.create({ data });
   }
 

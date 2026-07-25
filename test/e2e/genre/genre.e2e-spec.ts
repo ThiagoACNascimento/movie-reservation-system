@@ -1,0 +1,125 @@
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { App } from 'supertest/types';
+import request from 'supertest';
+import { Orchestrator } from '../../orchestrator';
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from '../../../src/app.module';
+import { Genre } from '../../../src/generated/prisma/client';
+import cookieParser from 'cookie-parser';
+
+describe('Gender (e2e)', () => {
+  let app: INestApplication<App>;
+  const orchestrator = new Orchestrator();
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
+    app.use(cookieParser());
+    await app.init();
+  });
+
+  beforeEach(async () => {
+    await orchestrator.resetPrismaDatabase();
+  });
+
+  afterAll(async () => {
+    await app.close();
+    await orchestrator.destroy();
+  });
+
+  describe('Create (POST)', () => {
+    it('should return an Unauthorized exception when user are not loggin', async () => {
+      const gender = await request(app.getHttpServer())
+        .post('/genders')
+        .send({
+          name: 'Action',
+        })
+        .expect(401);
+
+      expect(gender.body).toEqual({
+        message: 'You are not logging',
+        error: 'Unauthorized',
+        statusCode: 401,
+      });
+    });
+
+    it('should return a Forbidden exception when default user try create a gender', async () => {
+      const user = await orchestrator.createUser({ password: '12345678' });
+      const cookies = await orchestrator.login(app, {
+        email: user.email,
+        password: '12345678',
+      });
+      const gender = await request(app.getHttpServer())
+        .post('/genders')
+        .set('Cookie', cookies)
+        .send({
+          name: 'Action',
+        })
+        .expect(403);
+
+      expect(gender.body).toEqual({
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+        statusCode: 403,
+      });
+    });
+
+    it('should return a BadRequest exception when try create an exists genre', async () => {
+      const user = await orchestrator.createUser(
+        { password: '12345678' },
+        true,
+      );
+      const cookies = await orchestrator.login(app, {
+        email: user.email,
+        password: '12345678',
+      });
+      await orchestrator.createGenre({ name: 'Action' });
+      const gender = await request(app.getHttpServer())
+        .post('/genders')
+        .set('Cookie', cookies)
+        .send({
+          name: 'Action',
+        })
+        .expect(400);
+
+      expect(gender.body).toEqual({
+        message: 'Genre aready exist',
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
+    it('should return a new Gender', async () => {
+      const user = await orchestrator.createUser(
+        { password: '12345678' },
+        true,
+      );
+      const cookies = await orchestrator.login(app, {
+        email: user.email,
+        password: '12345678',
+      });
+      const gender = (await request(app.getHttpServer())
+        .post('/genders')
+        .set('Cookie', cookies)
+        .send({
+          name: 'Action',
+        })
+        .expect(201)) as { body: Genre };
+
+      expect(gender.body).toEqual({
+        id: gender.body.id,
+        name: gender.body.name,
+      });
+    });
+  });
+});

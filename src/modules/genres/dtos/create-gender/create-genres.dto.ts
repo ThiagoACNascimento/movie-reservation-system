@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class CreateGenderDto {
+export class CreateGenreDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(4)
