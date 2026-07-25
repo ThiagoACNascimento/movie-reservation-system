@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
 import { Genre } from '../../../src/generated/prisma/client';
 import cookieParser from 'cookie-parser';
+import { PaginationResult } from '../../../src/common/interfaces/pagination-result.interface';
 
 describe('Gender (e2e)', () => {
   let app: INestApplication<App>;
@@ -40,7 +41,7 @@ describe('Gender (e2e)', () => {
   describe('Create (POST)', () => {
     it('should return an Unauthorized exception when user are not loggin', async () => {
       const gender = await request(app.getHttpServer())
-        .post('/genders')
+        .post('/genres')
         .send({
           name: 'Action',
         })
@@ -60,7 +61,7 @@ describe('Gender (e2e)', () => {
         password: '12345678',
       });
       const gender = await request(app.getHttpServer())
-        .post('/genders')
+        .post('/genres')
         .set('Cookie', cookies)
         .send({
           name: 'Action',
@@ -77,6 +78,7 @@ describe('Gender (e2e)', () => {
     it('should return a BadRequest exception when try create an exists genre', async () => {
       const user = await orchestrator.createUser(
         { password: '12345678' },
+        false,
         true,
       );
       const cookies = await orchestrator.login(app, {
@@ -85,7 +87,7 @@ describe('Gender (e2e)', () => {
       });
       await orchestrator.createGenre({ name: 'Action' });
       const gender = await request(app.getHttpServer())
-        .post('/genders')
+        .post('/genres')
         .set('Cookie', cookies)
         .send({
           name: 'Action',
@@ -102,6 +104,7 @@ describe('Gender (e2e)', () => {
     it('should return a new Gender', async () => {
       const user = await orchestrator.createUser(
         { password: '12345678' },
+        false,
         true,
       );
       const cookies = await orchestrator.login(app, {
@@ -109,7 +112,7 @@ describe('Gender (e2e)', () => {
         password: '12345678',
       });
       const gender = (await request(app.getHttpServer())
-        .post('/genders')
+        .post('/genres')
         .set('Cookie', cookies)
         .send({
           name: 'Action',
@@ -119,6 +122,123 @@ describe('Gender (e2e)', () => {
       expect(gender.body).toEqual({
         id: gender.body.id,
         name: gender.body.name,
+      });
+    });
+  });
+
+  describe('Found (GET)', () => {
+    describe('Many', () => {
+      describe('Public', () => {
+        it('should return empty array', async () => {
+          const result = (await request(app.getHttpServer())
+            .get('/genres')
+            .expect(200)) as { body: PaginationResult<Genre> };
+
+          expect(Array.isArray(result.body.data)).toBe(true);
+          expect(result.body).toEqual({
+            data: [],
+            meta: {
+              lastPage: 0,
+              limit: result.body.meta.limit,
+              next: null,
+              page: 1,
+              prev: null,
+              total: 0,
+            },
+          });
+        });
+
+        it('should return an array with 2 genres', async () => {
+          await orchestrator.createGenre([
+            { name: 'Action' },
+            { name: 'Drama' },
+          ]);
+          const result = (await request(app.getHttpServer())
+            .get('/genres')
+            .expect(200)) as { body: PaginationResult<Genre> };
+
+          expect(Array.isArray(result.body.data)).toBe(true);
+          expect(result.body.data.length).toBeGreaterThan(1);
+          expect(result.body.data.length).toBeLessThan(3);
+        });
+      });
+
+      describe('Default User', () => {
+        it('should return empty array', async () => {
+          const cookies = await orchestrator.createUserAndLogin(app);
+          const result = (await request(app.getHttpServer())
+            .get('/genres')
+            .set('Cookie', cookies)
+            .expect(200)) as { body: PaginationResult<Genre> };
+
+          expect(Array.isArray(result.body.data)).toBe(true);
+          expect(result.body).toEqual({
+            data: [],
+            meta: {
+              lastPage: 0,
+              limit: result.body.meta.limit,
+              next: null,
+              page: 1,
+              prev: null,
+              total: 0,
+            },
+          });
+        });
+
+        it('should return an array with 2 genres', async () => {
+          const cookies = await orchestrator.createUserAndLogin(app);
+          await orchestrator.createGenre([
+            { name: 'Action' },
+            { name: 'Drama' },
+          ]);
+          const result = (await request(app.getHttpServer())
+            .get('/genres')
+            .set('Cookie', cookies)
+            .expect(200)) as { body: PaginationResult<Genre> };
+
+          expect(Array.isArray(result.body.data)).toBe(true);
+          expect(result.body.data.length).toBeGreaterThan(1);
+          expect(result.body.data.length).toBeLessThan(3);
+        });
+      });
+
+      describe('Admin User', () => {
+        it('should return empty array', async () => {
+          const cookies = await orchestrator.createUserAndLogin(app, true);
+          const result = (await request(app.getHttpServer())
+            .get('/genres')
+            .set('Cookie', cookies)
+            .expect(200)) as { body: PaginationResult<Genre> };
+
+          expect(Array.isArray(result.body.data)).toBe(true);
+          expect(result.body).toEqual({
+            data: [],
+            meta: {
+              lastPage: 0,
+              limit: result.body.meta.limit,
+              next: null,
+              page: 1,
+              prev: null,
+              total: 0,
+            },
+          });
+        });
+
+        it('should return an array with 2 genres', async () => {
+          const cookies = await orchestrator.createUserAndLogin(app, true);
+          await orchestrator.createGenre([
+            { name: 'Action' },
+            { name: 'Drama' },
+          ]);
+          const result = (await request(app.getHttpServer())
+            .get('/genres')
+            .set('Cookie', cookies)
+            .expect(200)) as { body: PaginationResult<Genre> };
+
+          expect(Array.isArray(result.body.data)).toBe(true);
+          expect(result.body.data.length).toBeGreaterThan(1);
+          expect(result.body.data.length).toBeLessThan(3);
+        });
       });
     });
   });
