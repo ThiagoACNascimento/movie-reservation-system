@@ -5,7 +5,7 @@ import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 
 @Injectable()
-export class GendersService {
+export class GenresService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(data: Prisma.GenreCreateInput) {

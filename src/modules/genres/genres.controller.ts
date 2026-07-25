@@ -1,25 +1,25 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { GendersService } from './genders.service';
+import { GenresService } from './genres.service';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CreateGenderDto } from './dtos/create-gender/create-gender.dto';
+import { CreateGenreDto } from './dtos/create-gender/create-genres.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginationResult } from '../../common/interfaces/pagination-result.interface';
 import { Genre } from '../../generated/prisma/client';
 
 @Controller('genders')
-export class GendersController {
-  constructor(private readonly gendersService: GendersService) {}
+export class GenresController {
+  constructor(private readonly genresService: GenresService) {}
 
   @Post()
   @Roles('admin')
-  create(@Body() createGenderDto: CreateGenderDto) {
-    return this.gendersService.create(createGenderDto);
+  create(@Body() createGenreDto: CreateGenreDto) {
+    return this.genresService.create(createGenreDto);
   }
 
   @Get()
   getMany(
     @Query() pagination: PaginationDto,
   ): Promise<PaginationResult<Genre>> {
-    return this.gendersService.getMany(pagination);
+    return this.genresService.getMany(pagination);
   }
 }
