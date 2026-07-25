@@ -53,6 +53,52 @@ describe('Gender (e2e)', () => {
       });
     });
 
+    it('should return a Forbidden exception when default user try create a gender', async () => {
+      const user = await orchestrator.createUser({ password: '12345678' });
+      const cookies = await orchestrator.login(app, {
+        email: user.email,
+        password: '12345678',
+      });
+      const gender = await request(app.getHttpServer())
+        .post('/genders')
+        .set('Cookie', cookies)
+        .send({
+          name: 'Action',
+        })
+        .expect(403);
+
+      expect(gender.body).toEqual({
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+        statusCode: 403,
+      });
+    });
+
+    it('should return a BadRequest exception when try create an exists genre', async () => {
+      const user = await orchestrator.createUser(
+        { password: '12345678' },
+        true,
+      );
+      const cookies = await orchestrator.login(app, {
+        email: user.email,
+        password: '12345678',
+      });
+      await orchestrator.createGenre({ name: 'Action' });
+      const gender = await request(app.getHttpServer())
+        .post('/genders')
+        .set('Cookie', cookies)
+        .send({
+          name: 'Action',
+        })
+        .expect(400);
+
+      expect(gender.body).toEqual({
+        message: 'Genre aready exist',
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
     it('should return a new Gender', async () => {
       const user = await orchestrator.createUser(
         { password: '12345678' },
