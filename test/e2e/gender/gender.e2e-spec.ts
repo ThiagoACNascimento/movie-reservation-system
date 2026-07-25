@@ -38,6 +38,21 @@ describe('Gender (e2e)', () => {
   });
 
   describe('Create (POST)', () => {
+    it('should return an Unauthorized exception when user are not loggin', async () => {
+      const gender = await request(app.getHttpServer())
+        .post('/genders')
+        .send({
+          name: 'Action',
+        })
+        .expect(401);
+
+      expect(gender.body).toEqual({
+        message: 'You are not logging',
+        error: 'Unauthorized',
+        statusCode: 401,
+      });
+    });
+
     it('should return a new Gender', async () => {
       const user = await orchestrator.createUser(
         { password: '12345678' },
@@ -55,7 +70,6 @@ describe('Gender (e2e)', () => {
         })
         .expect(201)) as { body: Genre };
 
-      console.log(gender.body);
       expect(gender.body).toEqual({
         id: gender.body.id,
         name: gender.body.name,

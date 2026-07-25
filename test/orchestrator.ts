@@ -17,6 +17,10 @@ interface Login {
   password: string;
 }
 
+interface GenreInterface {
+  name: string;
+}
+
 export class Orchestrator extends PrismaClient {
   constructor() {
     const adapter = new PrismaPg({
@@ -112,6 +116,18 @@ export class Orchestrator extends PrismaClient {
     return Promise.all(
       Array.from({ length: count }, () => this.createUser(userCreate)),
     );
+  }
+
+  async createGenre(genres: GenreInterface | GenreInterface[]) {
+    const result = Array.isArray(genres)
+      ? await Promise.all(
+          genres.map((genre) =>
+            this.genre.create({ data: { name: genre.name } }),
+          ),
+        )
+      : await this.genre.create({ data: { name: genres.name } });
+
+    return result;
   }
 
   async truncateAll(): Promise<void> {
