@@ -6,6 +6,7 @@ import { AppModule } from '../../../src/app.module';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { Room } from '../../../src/generated/prisma/client';
+import { PaginationResult } from '../../../src/common/interfaces/pagination-result.interface';
 
 describe('Rooms (E2E)', () => {
   let app: INestApplication<App>;
@@ -237,6 +238,72 @@ describe('Rooms (E2E)', () => {
           slug: room.slug,
           capacity: room.capacity,
         });
+      });
+    });
+
+    describe('Get all', () => {
+      it('should return an Unauthorized error with anonymous user', async () => {
+        const result = await request(app.getHttpServer())
+          .get('/rooms')
+          .expect(401);
+
+        expect(result.body).toEqual({
+          message: 'You are not logging',
+          error: 'Unauthorized',
+          statusCode: 401,
+        });
+      });
+
+      it('should return an Forbidden error with default user', async () => {
+        const cookies = await orchestrator.createUserAndLogin(app);
+        const result = await request(app.getHttpServer())
+          .get('/rooms')
+          .set('Cookie', cookies)
+          .expect(403);
+
+        expect(result.body).toEqual({
+          message: 'Forbidden resource',
+          error: 'Forbidden',
+          statusCode: 403,
+        });
+      });
+
+      it('should return a Room successfuly with empty array', async () => {
+        const cookies = await orchestrator.createUserAndLogin(app, true);
+
+        const result = (await request(app.getHttpServer())
+          .get(`/rooms`)
+          .set('Cookie', cookies)
+          .expect(200)) as { body: PaginationResult<Room> };
+
+        expect(Array.isArray(result.body.data)).toBeTruthy();
+        expect(result.body).toEqual({
+          data: [],
+          meta: {
+            total: 0,
+            page: 1,
+            limit: 10,
+            lastPage: 0,
+            prev: null,
+            next: null,
+          },
+        });
+      });
+
+      it('should return a Room successfuly with not empty array', async () => {
+        const cookies = await orchestrator.createUserAndLogin(app, true);
+        await orchestrator.createRoom();
+        await orchestrator.createRoom();
+        await orchestrator.createRoom();
+
+        const result = (await request(app.getHttpServer())
+          .get(`/rooms`)
+          .set('Cookie', cookies)
+          .expect(200)) as { body: PaginationResult<Room> };
+
+        expect(Array.isArray(result.body.data)).toBeTruthy();
+        expect(result.body.data.length).toBeGreaterThan(1);
+        expect(result.body.data.length).toBeLessThan(4);
       });
     });
   });
