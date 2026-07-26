@@ -72,7 +72,7 @@ describe('Rooms (E2E)', () => {
       });
     });
 
-    describe('should return a error when try create an room with invalid body', () => {
+    describe('should return a BadRequestException error when try create an room with invalid body', () => {
       it('name', async () => {
         const cookies = await orchestrator.createUserAndLogin(app, true);
         const result_without_name = await request(app.getHttpServer())
@@ -176,6 +176,67 @@ describe('Rooms (E2E)', () => {
         name: 'Room 1',
         slug: 'room-1',
         capacity: 30,
+      });
+    });
+  });
+
+  describe('Found (GET)', () => {
+    describe('Get one with slug', () => {
+      it('should return an Unauthorized error with anonymous user', async () => {
+        const result = await request(app.getHttpServer())
+          .get('/rooms/room-1')
+          .expect(401);
+
+        expect(result.body).toEqual({
+          message: 'You are not logging',
+          error: 'Unauthorized',
+          statusCode: 401,
+        });
+      });
+
+      it('should return an Forbidden error with default user', async () => {
+        const cookies = await orchestrator.createUserAndLogin(app);
+        const result = await request(app.getHttpServer())
+          .get('/rooms/room-1')
+          .set('Cookie', cookies)
+          .expect(403);
+
+        expect(result.body).toEqual({
+          message: 'Forbidden resource',
+          error: 'Forbidden',
+          statusCode: 403,
+        });
+      });
+
+      it('should return an NotFound error when room-1 not exist', async () => {
+        const cookies = await orchestrator.createUserAndLogin(app, true);
+        const result = await request(app.getHttpServer())
+          .get('/rooms/room-1')
+          .set('Cookie', cookies)
+          .expect(404);
+
+        expect(result.body).toEqual({
+          message: 'Room not found.',
+          error: 'Not Found',
+          statusCode: 404,
+        });
+      });
+
+      it('should return a Room successfuly', async () => {
+        const cookies = await orchestrator.createUserAndLogin(app, true);
+        const room = await orchestrator.createRoom();
+
+        const result = (await request(app.getHttpServer())
+          .get(`/rooms/${room.slug}`)
+          .set('Cookie', cookies)
+          .expect(200)) as { body: Room };
+
+        expect(result.body).toEqual({
+          id: room.id,
+          name: room.name,
+          slug: room.slug,
+          capacity: room.capacity,
+        });
       });
     });
   });
