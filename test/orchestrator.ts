@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import { createSlug } from '../src/common/utils/create-slug.utils';
 
 interface UserCreateInterface {
   name?: string;
@@ -19,6 +20,11 @@ interface Login {
 
 interface GenreInterface {
   name: string;
+}
+
+interface RoomInterface {
+  name?: string;
+  capacity?: number;
 }
 
 export class Orchestrator extends PrismaClient {
@@ -141,6 +147,19 @@ export class Orchestrator extends PrismaClient {
       : await this.genre.create({ data: { name: genres.name } });
 
     return result;
+  }
+
+  async createRoom(room?: RoomInterface) {
+    const name = room?.name ?? `Room ${faker.number.int({ min: 1, max: 50 })}`;
+    const slug = createSlug(name);
+
+    return await this.room.create({
+      data: {
+        name,
+        capacity: room?.capacity ?? faker.number.int({ min: 10, max: 10 }),
+        slug,
+      },
+    });
   }
 
   async truncateAll(): Promise<void> {
