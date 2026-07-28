@@ -174,6 +174,20 @@ export class Orchestrator extends PrismaClient {
     }
   }
 
+  createMovieProps(genres: string[]) {
+    return {
+      title: `${faker.word.adjective()} ${faker.word.noun()}`,
+      originalTitle: `${faker.word.adjective()} ${faker.word.noun()}`,
+      releaseDate: faker.date.anytime(),
+      status: 'showing',
+      score: faker.number.int({ min: 0, max: 10 }),
+      duration: faker.number.int({ min: 3600000, max: 7200000 }),
+      minAge: faker.number.int({ min: 0, max: 18 }),
+      genres: genres,
+      synopsis: faker.lorem.paragraphs(1),
+    };
+  }
+
   async deleteUser(id: string) {
     await this.user.delete({ where: { id } });
   }
